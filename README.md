@@ -1,76 +1,89 @@
-# simplelogs
-A basic class to manage logs
+# node-logs
+A class to manage basic logs
 
 
 ## Installation
 
 ```bash
-$ npm install simplelogs
+$ npm install node-logs
 ```
 
 ## Features
 
   * Show logs in the command prompt
   * Save logs in html formate, order by date (different files) & time
+  * Split files to avoid too-sized logs
+  * Read file in html formate
+  * Delete file
+
+## Doc
+
+  * string pathDirLogs    // where the log files are stored
+  * boolean showInConsole // disable logs in command prompt (prod ?)
+  * boolean showInFiles   // disable logs in files (debug ?)
+
+  * constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ])
+
+  * getLogs () : Promise // then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
+  * read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise // then((HTMLLogs) => {})
+  * lastWritableFile () : Promise // then((filepath) => {})
+  * remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise
+
+  * logInFile (string text, string type) : Promise // create your own logs
+  * log (string text) : Promise
+  * success (string text) : Promise // alias : "ok"
+  * warning (string text) : Promise // alias : "warn"
+  * error (string text) : Promise   // alias : "err"
+  * info (string text) : Promise
 
 ## Examples
 
 ```js
+var Logs = new (require('node-logs'))('/var/node-logs/logs');
 
-const SimpleLogs = require('simplelogs');
-var Logs = new SimpleLogs('/var/simplelogs/logs'); // constructor (pathDirLogs, showInConsole, showInFiles)
+Logs.log('log').then(() => {
 
-Logs.log('log').then(function() {
-
-   // success == ok
-   return Logs.ok('ok').then(function() {
+   return Logs.ok('ok').then(() => {
       return Logs.success('success');
    });
 
-}).then(function() {
+}).then(() => {
 
-   // warning == warn
-   return Logs.warn('warn').then(function() {
+   return Logs.warn('warn').then(() => {
       return Logs.warning('warning');
    });
 
-}).then(function() {
+}).then(() => {
 
-   // error == err
-   return Logs.err('err').then(function() {
+   return Logs.err('err').then(() => {
       return Logs.error('error');
    });
 
-}).then(function() {
+}).then(() => {
    return Logs.info('info');
-}).catch(function(err) {
+}).catch((err) => {
    console.log(err);
 });
 
-Logs.pathDirLogs = require('path').join(__dirname, 'logs');  // where the log files are stored
-Logs.showInConsole = false; // disable logs in command prompt (prod ?)
-Logs.showInFiles = false; // disable logs in files (debug ?)
+Logs.pathDirLogs = require('path').join(__dirname, 'logs');
+Logs.showInConsole = true;
+Logs.showInFiles = false;
 
-Logs.getLogs().then(function(logs) {
+Logs.getLogs().then((logs) => {
 
-   console.log(logs); // formate:  { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
+   return Logs.read(year, month, day, 1);
 
-   return Logs.read('<year (f=yyyy)>', '<month (f=mm)>', '<day (f=dd)>');
+}).then((content) => {
 
-}).then(function(content) {
+   return Logs.remove(year, month, day, 1);
 
-   console.log(content);
-
-   return Logs.remove('<year (f=yyyy)>', '<month (f=mm)>', '<day (f=dd)>');
-
-}).then(function() {
+}).then(() => {
 
    console.log('removed');
 
-}).catch(function(err) {
+}).catch((err) => {
    console.log(err);
 });
-
 ```
 
 ## Tests

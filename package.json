@@ -1,6 +1,6 @@
 {
   "name": "node-logs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A class to manage basic logs",
   "main": "lib/main.js",
   "scripts": {
