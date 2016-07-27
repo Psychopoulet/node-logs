@@ -113,31 +113,8 @@ describe("delete", () =>  {
 
 	after(() => { return fs.rmdirpProm(sDir); });
 
-	it("should delete log file", () =>  {
-
-		return Logs.getLogs().then((logs) =>  {
-
-			function _delete(filenumber) {
-
-				(1, console).log(filenumber, logs[sYear][sMonth][sDay][filenumber]);
-
-				return Logs.remove(sYear, sMonth, sDay, logs[sYear][sMonth][sDay][filenumber]).then(() =>  {
-
-					if (filenumber < logs.length) {
-						return _delete(filenumber + 1);
-					}
-					else {
-						return Promise.resolve();
-					}
-					
-				});
-
-			}
-
-			return _delete(0);
-
-		});
-
+	it("should delete logs for an entiere day", () =>  {
+		return Logs.removeDay(sYear, sMonth, sDay);
 	});
 
 });
