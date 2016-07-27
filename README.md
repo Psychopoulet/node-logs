@@ -28,6 +28,7 @@ $ npm install node-logs
   * read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise // then((HTMLLogs) => {})
   * lastWritableFile () : Promise // then((filepath) => {})
   * remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise
+  * removeDay (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>) : Promise // remove all this day's logs
 
   * logInFile (string text, string type) : Promise // create your own logs
   * log (string text) : Promise
@@ -40,6 +41,12 @@ $ npm install node-logs
 
 ```js
 var Logs = new (require('node-logs'))('/var/node-logs/logs');
+
+Logs.log('log');
+Logs.ok('ok');
+Logs.warn('warn');
+Logs.err('err');
+Logs.info('info');
 
 Logs.log('log').then(() => {
 
@@ -70,17 +77,11 @@ Logs.showInConsole = true;
 Logs.showInFiles = false;
 
 Logs.getLogs().then((logs) => {
-
    return Logs.read(year, month, day, 1);
-
 }).then((content) => {
-
-   return Logs.remove(year, month, day, 1);
-
+   return Logs.removeDay(year, month, day);
 }).then(() => {
-
    console.log('removed');
-
 }).catch((err) => {
    console.log(err);
 });
