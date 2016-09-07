@@ -18,9 +18,9 @@ $ npm install node-logs
 
 ## Doc
 
-  * ``` string pathDirLogs ```    // where the log files are stored
-  * ``` boolean showInConsole ``` // disable logs in command prompt (prod ?)
-  * ``` boolean showInFiles ```   // disable logs in files (debug ?)
+  * ``` string pathDirLogs ```    where the log files are stored
+  * ``` boolean showInConsole ``` disable logs in command prompt (prod ?)
+  * ``` boolean showInFiles ```   disable logs in files (debug ?)
 
   * ``` constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ]) ```
 
