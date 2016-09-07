@@ -18,24 +18,24 @@ $ npm install node-logs
 
 ## Doc
 
-  * string pathDirLogs    // where the log files are stored
-  * boolean showInConsole // disable logs in command prompt (prod ?)
-  * boolean showInFiles   // disable logs in files (debug ?)
+  * ``` string pathDirLogs ```    // where the log files are stored
+  * ``` boolean showInConsole ``` // disable logs in command prompt (prod ?)
+  * ``` boolean showInFiles ```   // disable logs in files (debug ?)
 
-  * constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ])
+  * ``` constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ]) ```
 
-  * getLogs () : Promise // then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
-  * read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise // then((HTMLLogs) => {})
-  * lastWritableFile () : Promise // then((filepath) => {})
-  * remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise
-  * removeDay (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>) : Promise // remove all this day's logs
+  * ``` getLogs () : Promise ``` then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
+  * ``` read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ``` then((HTMLLogs) => {})
+  * ``` lastWritableFile () : Promise ``` then((filepath) => {})
+  * ``` remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ```
+  * ``` removeDay (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>) : Promise ``` remove all this day's logs
 
-  * logInFile (string text, string type) : Promise // create your own logs
-  * log (string text) : Promise
-  * success (string text) : Promise // alias : "ok"
-  * warning (string text) : Promise // alias : "warn"
-  * error (string text) : Promise   // alias : "err"
-  * info (string text) : Promise
+  * ``` logInFile (string text, string type) : Promise ``` create your own logs
+  * ``` log (string text) : Promise ```
+  * ``` success (string text) : Promise ``` alias : "ok"
+  * ``` warning (string text) : Promise ``` alias : "warn"
+  * ``` error (string text) : Promise ```   alias : "err"
+  * ``` info (string text) : Promise ```
 
 ## Examples
 
