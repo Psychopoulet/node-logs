@@ -1,6 +1,6 @@
 {
   "name": "node-logs",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A class to manage basic logs",
   "main": "lib/main.js",
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "colors": "^1.1.2",
-    "node-promfs": "^1.0.0"
+    "node-promfs": "^1.0.1"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
