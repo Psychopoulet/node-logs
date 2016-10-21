@@ -18,11 +18,17 @@ $ npm install node-logs
 
 ## Doc
 
+  -- Attributes --
+
   * ``` string pathDirLogs ```    where the log files are stored
   * ``` boolean showInConsole ``` disable logs in command prompt (prod ?)
   * ``` boolean showInFiles ```   disable logs in files (debug ?)
 
+  -- Constructor --
+
   * ``` constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ]) ```
+
+  -- Methods --
 
   * ``` getLogs () : Promise ``` then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
   * ``` read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ``` then((HTMLLogs) => {})
