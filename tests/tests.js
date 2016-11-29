@@ -7,7 +7,7 @@
 
 			fs = require("node-promfs"),
 
-			NodeLogs = require(path.join(__dirname, "..", "lib", "main.js"));
+			NodeLogs = require(path.join(__dirname, "..", "dist", "main.js"));
 
 // private
 
