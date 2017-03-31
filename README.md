@@ -21,11 +21,11 @@ $ npm install node-logs
 
   -- Attributes --
 
-  * ``` integer _deleteLogsAfterXDays ``` limit old logs ```
-  * ``` string _localStorageDatabase ``` where the local logs are stored (path) ```
-  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object) ```
-  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?) ```
-  * ``` Array _interfaces ```   disable logs in files (debug ?) ```
+  * ``` integer _deleteLogsAfterXDays ``` limit old logs
+  * ``` string _localStorageDatabase ``` where the local logs are stored (path)
+  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object)
+  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?)
+  * ``` Array _interfaces ``` disable logs in files (debug ?)
 
   -- Constructor --
 
@@ -33,14 +33,14 @@ $ npm install node-logs
 
   -- Methods --
 
-  * ``` deleteLogsAfterXDays (integer deleteLogsAfterXDays) : this
-  * ``` localStorageDatabase (string localStorageDatabase) : this
-  * ``` showInConsole (boolean showInConsole) : this
+  * ``` deleteLogsAfterXDays (integer deleteLogsAfterXDays) : this ```
+  * ``` localStorageDatabase (string localStorageDatabase) : this ```
+  * ``` showInConsole (boolean showInConsole) : this ```
 
-  * ``` init () : Promise
-  * ``` release () : Promise
+  * ``` init () : Promise ``` create local storage if not exists and delete old logs
+  * ``` release () : Promise ```
 
-  * ``` addInterface () : Promise // add your own way to log data
+  * ``` addInterface () : Promise // add your own way to log data ```
 
   * ``` log (string text) : Promise ```
   * ``` success (string text) : Promise ``` alias : "ok"
