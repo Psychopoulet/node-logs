@@ -3,230 +3,421 @@
 
 // deps
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 require("colors");
-
-var path = require("path"),
-    fs = require("node-promfs");
-
-// consts
-
-var MAX_FILE_SIZE = 1024 * 1000;
+var sqlite3 = require("sqlite3");
 
 // private
 
-// attrs
-
-var _pathDirLogs;
-
 // methods
 
-function _formatedDate() {
+function _inputInterfaces(interfaces, i, msg, type) {
 
-	var sResult = "",
-	    date = new Date(),
-	    nMonth = date.getMonth() + 1,
-	    nDay = date.getDate();
+	if (i >= interfaces.length) {
+		return Promise.resolve();
+	} else {
 
-	sResult += date.getFullYear();
-	sResult += "_";
-	sResult += 9 < nMonth ? nMonth : "0" + nMonth;
-	sResult += "_";
-	sResult += 9 < nDay ? nDay : "0" + nDay;
+		var result = null;
 
-	return sResult;
-}
+		switch (type) {
 
-function _formatedTime() {
+			case "log":
+				result = interfaces[i].log(msg);
+				break;
+			case "success":
+				result = interfaces[i].success(msg);
+				break;
+			case "info":
+				result = interfaces[i].info(msg);
+				break;
+			case "warning":
+				result = interfaces[i].warning(msg);
+				break;
+			case "error":
+				result = interfaces[i].error(msg);
+				break;
 
-	var sResult = "",
-	    date = new Date(),
-	    nHours = date.getHours(),
-	    nMinutes = date.getMinutes();
+		}
 
-	sResult += 9 < nHours ? nHours : "0" + nHours;
-	sResult += ":";
-	sResult += 9 < nMinutes ? nMinutes : "0" + nMinutes;
+		return new Promise(function (resolve, reject) {
 
-	return sResult;
-}
+			if (!result) {
+				resolve();
+			} else if ("boolean" === typeof result) {
 
-function _fileIsFull(filepath) {
-
-	return fs.isFileProm(filepath).then(function (exists) {
-
-		if (!exists) {
-			return Promise.resolve(false);
-		} else {
-
-			return fs.statProm(filepath).then(function (stats) {
-
-				if (MAX_FILE_SIZE > stats.size) {
-					return Promise.resolve(false);
+				if (result) {
+					resolve();
 				} else {
-					return Promise.resolve(true);
+					reject(new Error("Impossible to log \"" + msg + "\" message with \"" + type + "\" type on all the interfaces"));
 				}
-			});
-		}
-	});
+			} else if ("object" === (typeof result === "undefined" ? "undefined" : _typeof(result)) && result instanceof Promise) {
+				result.then(resolve).catch(reject);
+			} else {
+				resolve();
+			}
+		}).then(function () {
+			return _inputInterfaces(interfaces, i + 1, msg, type);
+		});
+	}
 }
 
-function _delete(that, filenumber, year, month, day, logs) {
+function _input(interfaces, msg, type) {
 
-	return that.remove(year, month, day, logs[year][month][day][filenumber]).then(function () {
-
-		if (filenumber + 1 < logs[year][month][day].length) {
-			return _delete(that, filenumber + 1, year, month, day, logs);
-		} else {
-			return Promise.resolve();
-		}
-	});
+	if ("undefined" === typeof interfaces) {
+		return Promise.reject(new ReferenceError("Missing \"interfaces\" data"));
+	} else if ("object" !== (typeof interfaces === "undefined" ? "undefined" : _typeof(interfaces)) || !(interfaces instanceof Array)) {
+		return Promise.reject(new TypeError("\"interfaces\" data is not a string"));
+	} else if (0 >= interfaces.length) {
+		return Promise.resolve();
+	} else if ("undefined" === typeof msg) {
+		return Promise.reject(new ReferenceError("Missing \"msg\" data"));
+	} else if ("string" !== typeof msg && "object" !== (typeof msg === "undefined" ? "undefined" : _typeof(msg))) {
+		return Promise.reject(new TypeError("\"msg\" data is not a string or an object"));
+	} else if ("undefined" === typeof type) {
+		return Promise.reject(new ReferenceError("Missing \"type\" data"));
+	} else if ("string" !== typeof type) {
+		return Promise.reject(new TypeError("\"type\" data is not a string"));
+	} else if (-1 >= ["log", "success", "info", "warning", "error"].indexOf(type)) {
+		return Promise.reject(new TypeError("\"type\" data is not in [ \"log\", \"success\", \"info\", \"warning\", \"error\" ] "));
+	} else {
+		return _inputInterfaces(interfaces, 0, "object" === (typeof msg === "undefined" ? "undefined" : _typeof(msg)) ? JSON.stringify(msg) : msg, type);
+	}
 }
 
 // module
 
 module.exports = function () {
-	function NodeLogs(pathDirLogs, showInConsole, showInFiles) {
+	function NodeLogs() {
 		_classCallCheck(this, NodeLogs);
 
-		this.pathDirLogs = pathDirLogs ? pathDirLogs : path.join(__dirname, "logs");
+		// direct output
+		this._showInConsole = true;
 
-		this.showInConsole = showInConsole ? showInConsole : true;
-		this.showInFiles = showInFiles ? showInFiles : true;
+		// delete old logs
+		this._deleteLogsAfterXDays = 7;
+
+		// local storage
+		this._localStorageDatabase = "logs.db";
+		this._localStorageObject = null;
+
+		// other storages interfaces
+		this._interfaces = [];
 	}
 
 	// accessors
 
 	_createClass(NodeLogs, [{
-		key: "getLogs",
+		key: "deleteLogsAfterXDays",
+		value: function deleteLogsAfterXDays(_deleteLogsAfterXDays) {
+			this._deleteLogsAfterXDays = "number" === typeof _deleteLogsAfterXDays ? _deleteLogsAfterXDays : this.deleteLogsAfterXDays;return this;
+		}
+	}, {
+		key: "localStorageDatabase",
+		value: function localStorageDatabase(_localStorageDatabase) {
+			this._localStorageDatabase = "string" === typeof _localStorageDatabase ? _localStorageDatabase : this.localStorageDatabase;return this;
+		}
+	}, {
+		key: "showInConsole",
+		value: function showInConsole(_showInConsole) {
+			this._showInConsole = "boolean" === typeof _showInConsole ? _showInConsole : this._showInConsole;return this;
+		}
 
+		// init / release
+
+	}, {
+		key: "init",
+		value: function init() {
+			var _this = this;
+
+			var fs = require("fs");
+
+			// local storage exists
+			return new Promise(function (resolve, reject) {
+
+				fs.lstat(_this._localStorageDatabase, function (err, stats) {
+
+					if (err) {
+
+						if (err.code && "ENOENT" === err.code) {
+							resolve(false);
+						} else {
+							reject(err);
+						}
+					} else {
+						resolve(stats.isFile());
+					}
+				});
+
+				// if not, create
+			}).then(function (isFile) {
+
+				if (isFile) {
+
+					return new Promise(function (resolve) {
+
+						_this._localStorageObject = new sqlite3.Database(_this._localStorageDatabase);
+
+						_this._localStorageObject.serialize(function () {
+							resolve();
+						});
+					});
+				} else {
+
+					return new Promise(function (resolve, reject) {
+
+						fs.writeFile(_this._localStorageDatabase, "", function (err) {
+
+							if (err) {
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+					}).then(function () {
+
+						return new Promise(function (resolve, reject) {
+
+							_this._localStorageObject = new sqlite3.Database(_this._localStorageDatabase);
+
+							_this._localStorageObject.serialize(function () {
+
+								if (isFile) {
+									resolve();
+								} else {
+
+									_this._localStorageObject.run("CREATE TABLE logs (" + " id INTEGER PRIMARY KEY AUTOINCREMENT," + " type VARCHAR(10)," + " _datetime DATETIME," + " message TEXT" + " );", function (err) {
+
+										if (err) {
+											reject(err);
+										} else {
+											resolve();
+										}
+									});
+								}
+							});
+						});
+					});
+				}
+
+				// add local storage interface
+			}).then(function () {
+
+				function _localStorage(localStorageObject, msg, type) {
+
+					return new Promise(function (resolve, reject) {
+
+						localStorageObject.prepare("INSERT INTO logs VALUES (NULL, ?, DATETIME(), ?);").run(type, msg).finalize(function (err) {
+
+							if (err) {
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+
+						resolve();
+					});
+				}
+
+				return _this.addInterface({
+
+					log: function log(msg) {
+						return _localStorage(_this._localStorageObject, msg, "log");
+					},
+					success: function success(msg) {
+						return _localStorage(_this._localStorageObject, msg, "success");
+					},
+					info: function info(msg) {
+						return _localStorage(_this._localStorageObject, msg, "info");
+					},
+					warning: function warning(msg) {
+						return _localStorage(_this._localStorageObject, msg, "warning");
+					},
+					error: function error(msg) {
+						return _localStorage(_this._localStorageObject, msg, "error");
+					}
+
+				});
+
+				// delete old logs
+			}).then(function () {
+
+				return new Promise(function (resolve) {
+
+					_this._localStorageObject.run("DELETE FROM logs WHERE _datetime <= date('now', '-" + _this._deleteLogsAfterXDays + " days');", function (err) {
+
+						if (err) {
+							reject(err);
+						} else {
+							resolve();
+						}
+					});
+				});
+			});
+		}
+	}, {
+		key: "release",
+		value: function release() {
+			var _this2 = this;
+
+			return new Promise(function (resolve, reject) {
+
+				_this2._localStorageObject.close(function (err) {
+
+					if (err) {
+						reject(err);
+					} else {
+						resolve();
+					}
+				});
+			});
+		}
+	}, {
+		key: "addInterface",
+		value: function addInterface(logInterface) {
+			var _this3 = this;
+
+			return new Promise(function (resolve, reject) {
+
+				// check interface
+				if ("undefined" === typeof logInterface) {
+					reject(new ReferenceError("Missing \"logInterface\" data"));
+				} else if ("object" !== (typeof logInterface === "undefined" ? "undefined" : _typeof(logInterface))) {
+					reject(new TypeError("\"logInterface\" data is not an object"));
+				}
+
+				// check interface components
+
+				// log
+				else if ("undefined" === typeof logInterface.log) {
+						reject(new ReferenceError("Missing \"logInterface.log\" data"));
+					} else if ("function" !== typeof logInterface.log) {
+						reject(new TypeError("\"logInterface.log\" data is not a function"));
+					}
+
+					// success
+					else if ("undefined" === typeof logInterface.success) {
+							reject(new ReferenceError("Missing \"logInterface.success\" data"));
+						} else if ("function" !== typeof logInterface.success) {
+							reject(new TypeError("\"logInterface.success\" data is not a function"));
+						}
+
+						// info
+						else if ("undefined" === typeof logInterface.info) {
+								reject(new ReferenceError("Missing \"logInterface.info\" data"));
+							} else if ("function" !== typeof logInterface.info) {
+								reject(new TypeError("\"logInterface.info\" data is not a function"));
+							}
+
+							// warning
+							else if ("undefined" === typeof logInterface.warning) {
+									reject(new ReferenceError("Missing \"logInterface.warning\" data"));
+								} else if ("function" !== typeof logInterface.warning) {
+									reject(new TypeError("\"logInterface.warning\" data is not a function"));
+								}
+
+								// error
+								else if ("undefined" === typeof logInterface.error) {
+										reject(new ReferenceError("Missing \"logInterface.error\" data"));
+									} else if ("function" !== typeof logInterface.error) {
+										reject(new TypeError("\"logInterface.error\" data is not a function"));
+									} else {
+										_this3._interfaces.push(logInterface);resolve();
+									}
+			});
+		}
 
 		// get logs
 
-		value: function getLogs() {
-
-			return fs.readdirProm(_pathDirLogs).then(function (files) {
-
-				var result = {};
-
-				files.forEach(function (file) {
-
-					file = file.replace(".html", "").split("_");
-
-					if (!result[file[0]]) {
-						result[file[0]] = {};
-					}
-					if (!result[file[0]][file[1]]) {
-						result[file[0]][file[1]] = {};
-					}
-					if (!result[file[0]][file[1]][file[2]]) {
-						result[file[0]][file[1]][file[2]] = [];
-					}
-
-					result[file[0]][file[1]][file[2]].push(file[3]);
-				});
-
-				return Promise.resolve(result);
-			});
-		}
 	}, {
-		key: "read",
-		value: function read(year, month, day, filenumber) {
+		key: "getDates",
+		value: function getDates() {}
 
-			var file = path.join(_pathDirLogs, year + "_" + month + "_" + day + "_" + filenumber + ".html");
+		/*return fs.readdirProm(_pathDirLogs).then((files) =>  {
+  			let result = {};
+  			files.forEach((file) =>  {
+  				file = file.replace(".html", "").split("_");
+  				if (!result[file[0]]) {
+  			result[file[0]] = {};
+  		}
+  		if ( !result [file[0]] [file[1]] ) {
+  			result [file[0]] [file[1]] = {};
+  		}
+  		if ( !result [file[0]] [file[1]] [file[2]] ) {
+  			result [file[0]] [file[1]] [file[2]] = [];
+  		}
+  				result [file[0]] [file[1]] [file[2]] .push(file[3]);
+  			});
+  			return Promise.resolve(result);
+  		});*/
 
-			return fs.isFileProm(file).then(function (exists) {
+		/*read (year, month, day, filenumber) {
+  
+  	let sText = "<tr class=\"line\">";
+  				sText += "<th class=\"time\">" + _formatedTime() + "</th>";
+  		
+  		sText += "<td class=\"message " + type + "\">";
+  			sText += ("object" === typeof msg) ? JSON.stringify(msg) : msg;
+  		sText += "</td>";
+  		
+  	sText += "</tr>";
+  
+  
+  	let file = path.join(_pathDirLogs, year + "_" + month + "_" + day + "_" + filenumber + ".html");
+  			return fs.isFileProm(file).then((exists) =>  {
+  				if (!exists) {
+  			return Promise.resolve("<table class=\"node-logs\"><tbody class=\"list\"></tbody></table>");
+  		}
+  		else {
+  					return fs.readFileProm(file, "utf8").then((content) =>  {
+  				return Promise.resolve("<table class=\"node-logs\"><tbody class=\"list\">" + content + "</tbody></table>");
+  			}).catch((err) =>  {
+  				return Promise.reject((err.message) ? err.message : err);
+  			});
+  		
+  		}
+  			});
+  		}
+  */
 
-				if (!exists) {
-					return Promise.resolve("<table class=\"node-logs\"><tbody class=\"list\"></tbody></table>");
-				} else {
-
-					return fs.readFileProm(file, "utf8").then(function (content) {
-						return Promise.resolve("<table class=\"node-logs\"><tbody class=\"list\">" + content + "</tbody></table>");
-					}).catch(function (err) {
-						return Promise.reject(err.message ? err.message : err);
-					});
-				}
-			});
-		}
-	}, {
-		key: "lastWritableFile",
-		value: function lastWritableFile(lastfilenumber) {
-			var _this = this;
-
-			if ("number" !== typeof lastfilenumber || 0 > lastfilenumber) {
-				lastfilenumber = 0;
-			}
-
-			var filepath = path.join(_pathDirLogs, _formatedDate() + "_" + lastfilenumber + ".html");
-
-			return _fileIsFull(filepath).then(function (isfulll) {
-
-				if (!isfulll) {
-					return Promise.resolve(filepath);
-				} else {
-					return _this.lastWritableFile(lastfilenumber + 1);
-				}
-			});
-		}
-
-		// delete log
-
-	}, {
-		key: "remove",
-		value: function remove(year, month, day, filenumber) {
-
-			return fs.unlinkProm(path.join(_pathDirLogs, year + "_" + month + "_" + day + "_" + filenumber + ".html"));
-		}
-	}, {
-		key: "removeDay",
-		value: function removeDay(year, month, day) {
-			var _this2 = this;
-
-			return this.getLogs().then(function (logs) {
-				return _delete(_this2, 0, year, month, day, logs);
-			});
-		}
-
-		// formate log
-
-	}, {
-		key: "logInFile",
-		value: function logInFile(msg, type) {
-			var _this3 = this;
-
-			// formate log text
-
-			var sText = "<tr class=\"line\">";
-
-			sText += "<th class=\"time\">" + _formatedTime() + "</th>";
-
-			sText += "<td class=\"message " + type + "\">";
-			sText += "object" === (typeof msg === "undefined" ? "undefined" : _typeof(msg)) ? JSON.stringify(msg) : msg;
-			sText += "</td>";
-
-			sText += "</tr>";
-
-			// write in log file
-
-			return fs.isDirectoryProm(_pathDirLogs).then(function (exists) {
-
-				if (exists) {
-					return Promise.resolve();
-				} else {
-					return fs.mkdirpProm(_pathDirLogs);
-				}
-			}).then(function () {
-				return _this3.lastWritableFile();
-			}).then(function (filepath) {
-				return fs.appendFileProm(filepath, sText, "utf8");
-			});
-		}
+		/*// delete log
+  
+  	remove (year, month, day, filenumber) {
+  
+  		return fs.unlinkProm(
+  			path.join(_pathDirLogs, year + "_" + month + "_" + day + "_" + filenumber + ".html")
+  		);
+  
+  	}
+  
+  
+  	function _delete(that, filenumber, year, month, day, logs) {
+  
+  		return that.remove(year, month, day, logs[year][month][day][filenumber]).then(() =>  {
+  
+  			if (filenumber + 1 < logs[year][month][day].length) {
+  				return _delete(that, filenumber + 1, year, month, day, logs);
+  			}
+  			else {
+  				return Promise.resolve();
+  			}
+  			
+  		});
+  
+  	}
+  
+  	removeDay (year, month, day) {
+  
+  		return this.getLogs().then((logs) =>  {
+  			return _delete(this, 0, year, month, day, logs);
+  		});
+  
+  	}*/
 
 		// log
 
@@ -234,29 +425,21 @@ module.exports = function () {
 		key: "log",
 		value: function log(msg) {
 
-			if (this.showInConsole) {
+			if (this._showInConsole) {
 				(1, console).log(msg);
 			}
 
-			if (this.showInFiles) {
-				return this.logInFile(msg, "log");
-			} else {
-				return Promise.resolve();
-			}
+			return _input(this._interfaces, msg, "log");
 		}
 	}, {
 		key: "ok",
 		value: function ok(msg) {
 
-			if (this.showInConsole) {
+			if (this._showInConsole) {
 				(1, console).log(msg.green);
 			}
 
-			if (this.showInFiles) {
-				return this.logInFile(msg, "success");
-			} else {
-				return Promise.resolve();
-			}
+			return _input(this._interfaces, msg, "success");
 		}
 	}, {
 		key: "success",
@@ -267,15 +450,11 @@ module.exports = function () {
 		key: "warn",
 		value: function warn(msg) {
 
-			if (this.showInConsole) {
+			if (this._showInConsole) {
 				(1, console).log(msg.yellow);
 			}
 
-			if (this.showInFiles) {
-				return this.logInFile(msg, "warning");
-			} else {
-				return Promise.resolve();
-			}
+			return _input(this._interfaces, msg, "warning");
 		}
 	}, {
 		key: "warning",
@@ -286,15 +465,11 @@ module.exports = function () {
 		key: "err",
 		value: function err(msg) {
 
-			if (this.showInConsole) {
+			if (this._showInConsole) {
 				(1, console).log(msg.red);
 			}
 
-			if (this.showInFiles) {
-				return this.logInFile(msg, "error");
-			} else {
-				return Promise.resolve();
-			}
+			return _input(this._interfaces, msg, "error");
 		}
 	}, {
 		key: "error",
@@ -305,28 +480,11 @@ module.exports = function () {
 		key: "info",
 		value: function info(msg) {
 
-			if (this.showInConsole) {
+			if (this._showInConsole) {
 				(1, console).log(msg.cyan);
 			}
 
-			if (this.showInFiles) {
-				return this.logInFile(msg, "info");
-			} else {
-				return Promise.resolve();
-			}
-		}
-	}, {
-		key: "pathDirLogs",
-		get: function get() {
-			return _pathDirLogs;
-		},
-		set: function set(dir) {
-
-			if ("string" !== typeof dir) {
-				throw new Error(this.constructor.name + "/pathDirLogs : this is not a valid directory");
-			} else {
-				_pathDirLogs = path.normalize(dir);
-			}
+			return _input(this._interfaces, msg, "info");
 		}
 	}]);
 

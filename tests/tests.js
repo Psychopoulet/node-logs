@@ -2,85 +2,124 @@
 
 // deps
 
-	const	path = require("path"),
-			assert = require("assert"),
-
-			fs = require("node-promfs"),
-
-			NodeLogs = require(path.join(__dirname, "..", "dist", "main.js"));
+	const path = require("path");
+	const fs = require("fs");
+	const assert = require("assert");
+	const NodeLogs = require(path.join(__dirname, "..", "dist", "main.js"));
 
 // private
 
-	var sDir = path.join(__dirname, "logs"),
-		Logs = new NodeLogs(sDir),
+	// attrs
 
-		date = new Date(),
-		sYear = date.getFullYear() + "",
-		sMonth = (9 < date.getMonth() + 1) ? date.getMonth() + 1 + "" : "0" + (date.getMonth() + 1),
-		sDay = (9 < date.getDate()) ? date.getDate() + "" : "0" + date.getDate();
+		var dirDB = path.join(__dirname, "logs.db");
+		var logs = new NodeLogs();
 
-describe("errors", () => {
-
-	after(() => { return fs.rmdirpProm(sDir); });
-
-	it("should check pathDirLogs type value", () => {
-		assert.throws(() => { Logs.pathDirLogs = 15; }, Error, "check type value does not throw an error");
-		assert.doesNotThrow(() => { Logs.pathDirLogs = sDir; }, Error, "check type value throw an error");
-	});
-
-});
+logs
+	.deleteLogsAfterXDays(2)
+	.localStorageDatabase(dirDB)
+	.showInConsole(true);
 
 describe("write", () => {
 
-	before(() => { return fs.rmdirpProm(sDir); });
+	before(() => {
+
+		return new Promise((resolve, reject) => {
+
+			fs.lstat(dirDB, (err, stats) => {
+
+				if (err) {
+
+					if (err.code && "ENOENT" === err.code) {
+						resolve(false);
+					}
+					else {
+						reject(err);
+					}
+					
+				}
+				else {
+					resolve(stats.isFile());
+				}
+
+			});
+
+		}).then((isFile) => {
+
+			if (!isFile) {
+				return Promise.resolve();
+			}
+			else {
+
+				return new Promise((resolve, reject) => {
+
+					fs.unlink(dirDB, (err) => {
+
+						if (err) {
+							reject(err);
+						}
+						else {
+							resolve();
+						}
+
+					});
+
+				});
+				
+			}
+
+		}).then(() => {
+			return logs.init();
+		});
+
+	});
 
 	it("should test log function", () => {
 
-		return Logs.log("log").then(() => {
-			return Logs.log({ test: "test" });
+		return logs.log("log").then(() => {
+			return logs.log({ test: "test" });
 		}).then(() => {
-			return Logs.log([ "01", "02", "03" ]);
+			return logs.log([ "01", "02", "03" ]);
 		});
 
 	});
 
 	it("should test info function", () => {
 
-		return Logs.info("info");
+		return logs.info("info");
 
 	});
 
 	it("should test success function", () => {
 
-		return Logs.ok("ok").then(() => {
-			return Logs.success("success");
+		return logs.ok("ok").then(() => {
+			return logs.success("success");
 		});
 
 	});
 
 	it("should test warning function", () => {
 
-		return Logs.warn("warn").then(() => {
-			return Logs.warning("warning");
+		return logs.warn("warn").then(() => {
+			return logs.warning("warning");
 		});
 
 	});
 
 	it("should test error function", () => {
 
-		return Logs.err("err").then(() => {
-			return Logs.error("error");
+		return logs.err("err").then(() => {
+			return logs.error("error");
 		});
 
 	});
 
 });
 
-describe("read", () =>  {
+/*describe("read", () =>  {
 
 	it("should return the last writable file", () =>  {
 
-		return Logs.lastWritableFile().then((lastwritablefile) =>  {
+		return logs.lastWritableFile().then((lastwritablefile) =>  {
 			assert.strictEqual("string", typeof lastwritablefile, "returned value is not a string");
 		});
 
@@ -88,14 +127,14 @@ describe("read", () =>  {
 
 	it("should return registered log files", () =>  {
 
-		return Logs.getLogs().then((logs) =>  {
+		return logs.getLogs().then((logs) =>  {
 
 			assert.strictEqual(true, logs instanceof Object, "returned value is not an Object");
 			assert.strictEqual(true, logs[sYear] && logs[sYear] instanceof Object, "returned value is not an Object with year");
 			assert.strictEqual(true, logs[sYear][sMonth] && logs[sYear][sMonth] instanceof Object, "returned value is not an Object with month");
 			assert.strictEqual(true, logs[sYear][sMonth][sDay] && logs[sYear][sMonth][sDay] instanceof Object, "returned value is not an Object with day");
 
-			return Logs.read(sYear, sMonth, sDay, 1);
+			return logs.read(sYear, sMonth, sDay, 1);
 
 		}).then((txt) =>  {
 
@@ -107,14 +146,30 @@ describe("read", () =>  {
 
 	});
 
-});
+});*/
 
 describe("delete", () =>  {
 
-	after(() => { return fs.rmdirpProm(sDir); });
+	after(() => { 
 
-	it("should delete logs for an entiere day", () =>  {
-		return Logs.removeDay(sYear, sMonth, sDay);
-	});
+		return logs.release().then(() => {
+
+			fs.unlink(dirDB, (err) => {
+
+				if (err) {
+					reject(err);
+				}
+				else {
+					resolve();
+				}
+
+			});
+
+		});
+ 	});
+
+	/*it("should delete logs for an entiere day", () =>  {
+		return logs.removeDay(sYear, sMonth, sDay);
+	});*/
 
 });

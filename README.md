@@ -1,5 +1,5 @@
 # node-logs
-A class to manage basic logs
+A class to manage logs
 
 
 ## Installation
@@ -11,24 +11,42 @@ $ npm install node-logs
 ## Features
 
   * Show logs in the command prompt
-  * Save logs in html formate, order by date (different files) & time
-  * Split files to avoid too-sized logs
-  * Read file in html formate
-  * Delete file
+  * Save logs in sqlite formate, order by date (different files) & time
+  * Add interfaces to use new specific way to log data (api, json, etc...)
+  * Delete old x days logs
+  * Read logs
+  * Delete logs
 
 ## Doc
 
   -- Attributes --
 
-  * ``` string pathDirLogs ```    where the log files are stored
-  * ``` boolean showInConsole ``` disable logs in command prompt (prod ?)
-  * ``` boolean showInFiles ```   disable logs in files (debug ?)
+  * ``` integer _deleteLogsAfterXDays ``` limit old logs
+  * ``` string _localStorageDatabase ``` where the local logs are stored (path)
+  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object)
+  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?)
+  * ``` Array _interfaces ```   disable logs in files (debug ?)
 
   -- Constructor --
 
-  * ``` constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ]) ```
+  * ``` constructor () ```
 
   -- Methods --
+
+  * ``` deleteLogsAfterXDays (integer deleteLogsAfterXDays) : this
+  * ``` localStorageDatabase (string localStorageDatabase) : this
+  * ``` showInConsole (boolean showInConsole) : this
+
+  * ``` init () : Promise
+  * ``` release () : Promise
+
+  * ``` addInterface () : Promise // add your own way to log data
+
+  * ``` log (string text) : Promise ```
+  * ``` success (string text) : Promise ``` alias : "ok"
+  * ``` warning (string text) : Promise ``` alias : "warn"
+  * ``` error (string text) : Promise ```   alias : "err"
+  * ``` info (string text) : Promise ```
 
   * ``` getLogs () : Promise ``` then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
   * ``` read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ``` then((HTMLLogs) => {})
@@ -36,60 +54,62 @@ $ npm install node-logs
   * ``` remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ```
   * ``` removeDay (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>) : Promise ``` remove all this day's logs
 
-  * ``` logInFile (string text, string type) : Promise ``` create your own logs
-  * ``` log (string text) : Promise ```
-  * ``` success (string text) : Promise ``` alias : "ok"
-  * ``` warning (string text) : Promise ``` alias : "warn"
-  * ``` error (string text) : Promise ```   alias : "err"
-  * ``` info (string text) : Promise ```
-
 ## Examples
 
 ```js
-var Logs = new (require('node-logs'))('/var/node-logs/logs');
+var logs = new (require('node-logs'))();
 
-Logs.log('log');
-Logs.ok('ok');
-Logs.warn('warn');
-Logs.err('err');
-Logs.info('info');
+logs
+  .deleteLogsAfterXDays(2)
+  .localStorageDatabase(require('path').join(__dirname, 'logs.db'))
+  .showInConsole(false);
 
-Logs.log('log').then(() => {
+logs.init(() => {
 
-   return Logs.ok('ok').then(() => {
-      return Logs.success('success');
-   });
+  // write
 
-}).then(() => {
+  logs.log('log').then(() => {
 
-   return Logs.warn('warn').then(() => {
-      return Logs.warning('warning');
-   });
+     return logs.ok('ok').then(() => {
+        return logs.success('success');
+     });
 
-}).then(() => {
+  }).then(() => {
 
-   return Logs.err('err').then(() => {
-      return Logs.error('error');
-   });
+     return logs.warn('warn').then(() => {
+        return logs.warning('warning');
+     });
 
-}).then(() => {
-   return Logs.info('info');
-}).catch((err) => {
-   console.log(err);
-});
+  }).then(() => {
 
-Logs.pathDirLogs = require('path').join(__dirname, 'logs');
-Logs.showInConsole = true;
-Logs.showInFiles = false;
+     return logs.err('err').then(() => {
+        return logs.error('error');
+     });
 
-Logs.getLogs().then((logs) => {
-   return Logs.read(year, month, day, 1);
-}).then((content) => {
-   return Logs.removeDay(year, month, day);
-}).then(() => {
-   console.log('removed');
-}).catch((err) => {
-   console.log(err);
+  }).then(() => {
+     return logs.info('info');
+  }).catch((err) => {
+     console.log(err);
+  });
+
+  // read
+
+  logs.getLogs().then((logs) => {
+     return logs.read(year, month, day, 1);
+  }).then((content) => {
+     return logs.removeDay(year, month, day);
+  }).then(() => {
+     console.log('removed');
+  }).catch((err) => {
+     console.log(err);
+  });
+
+  // release
+
+  logs.release().catch((err) => {
+     console.log(err);
+  });
+
 });
 ```
 
