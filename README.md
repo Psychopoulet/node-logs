@@ -21,11 +21,11 @@ $ npm install node-logs
 
   -- Attributes --
 
-  * ``` integer _deleteLogsAfterXDays ``` limit old logs
-  * ``` string _localStorageDatabase ``` where the local logs are stored (path)
-  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object)
-  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?)
-  * ``` Array _interfaces ```   disable logs in files (debug ?)
+  * ``` integer _deleteLogsAfterXDays ``` limit old logs ```
+  * ``` string _localStorageDatabase ``` where the local logs are stored (path) ```
+  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object) ```
+  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?) ```
+  * ``` Array _interfaces ```   disable logs in files (debug ?) ```
 
   -- Constructor --
 
