@@ -114,17 +114,38 @@ module.exports = function () {
 	_createClass(NodeLogs, [{
 		key: "deleteLogsAfterXDays",
 		value: function deleteLogsAfterXDays(_deleteLogsAfterXDays) {
-			this._deleteLogsAfterXDays = "number" === typeof _deleteLogsAfterXDays ? _deleteLogsAfterXDays : this.deleteLogsAfterXDays;return this;
+
+			if ("undefined" === typeof _deleteLogsAfterXDays) {
+				throw new ReferenceError("Missing \"deleteLogsAfterXDays\" data");
+			} else if ("number" !== typeof _deleteLogsAfterXDays) {
+				throw new TypeError("\"deleteLogsAfterXDays\" data is not a number");
+			} else {
+				this._deleteLogsAfterXDays = _deleteLogsAfterXDays;return this;
+			}
 		}
 	}, {
 		key: "localStorageDatabase",
 		value: function localStorageDatabase(_localStorageDatabase) {
-			this._localStorageDatabase = "string" === typeof _localStorageDatabase ? _localStorageDatabase : this.localStorageDatabase;return this;
+
+			if ("undefined" === typeof _localStorageDatabase) {
+				throw new ReferenceError("Missing \"localStorageDatabase\" data");
+			} else if ("string" !== typeof _localStorageDatabase) {
+				throw new TypeError("\"localStorageDatabase\" data is not a string");
+			} else {
+				this._localStorageDatabase = _localStorageDatabase;return this;
+			}
 		}
 	}, {
 		key: "showInConsole",
 		value: function showInConsole(_showInConsole) {
-			this._showInConsole = "boolean" === typeof _showInConsole ? _showInConsole : this._showInConsole;return this;
+
+			if ("undefined" === typeof _showInConsole) {
+				throw new ReferenceError("Missing \"showInConsole\" data");
+			} else if ("boolean" !== typeof _showInConsole) {
+				throw new TypeError("\"showInConsole\" data is not a boolean");
+			} else {
+				this._showInConsole = _showInConsole;return this;
+			}
 		}
 
 		// init / release
@@ -275,6 +296,10 @@ module.exports = function () {
 						resolve();
 					}
 				});
+			}).then(function () {
+
+				_this2._localStorageObject = null;
+				return Promise.resolve();
 			});
 		}
 	}, {
@@ -335,8 +360,8 @@ module.exports = function () {
 		// get logs
 
 	}, {
-		key: "getDates",
-		value: function getDates() {}
+		key: "getLogs",
+		value: function getLogs() {}
 
 		/*return fs.readdirProm(_pathDirLogs).then((files) =>  {
   			let result = {};

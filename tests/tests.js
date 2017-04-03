@@ -14,10 +14,57 @@
 		var dirDB = path.join(__dirname, "logs.db");
 		var logs = new NodeLogs();
 
-logs
-	.deleteLogsAfterXDays(2)
-	.localStorageDatabase(dirDB)
-	.showInConsole(true);
+describe("accessors", () => {
+
+	describe("deleteLogsAfterXDays", () => {
+
+		it("should check empty value", () => {
+			assert.throws(() => { logs.deleteLogsAfterXDays(); }, ReferenceError, "check empty value does not throw an error");
+		});
+
+		it("should check wrong type value", () => {
+			assert.throws(() => { logs.deleteLogsAfterXDays(false); }, TypeError, "check empty value does not throw an error");
+		});
+
+		it("should check right type value", () => {
+			assert.doesNotThrow(() => { logs.deleteLogsAfterXDays(2); }, Error, "check type value throw an error");
+		});
+
+	});
+
+	describe("localStorageDatabase", () => {
+
+		it("should check empty value", () => {
+			assert.throws(() => { logs.localStorageDatabase(); }, ReferenceError, "check empty value does not throw an error");
+		});
+
+		it("should check wrong type value", () => {
+			assert.throws(() => { logs.localStorageDatabase(false); }, TypeError, "check empty value does not throw an error");
+		});
+
+		it("should check write type value", () => {
+			assert.doesNotThrow(() => { logs.localStorageDatabase(dirDB); }, Error, "check type value throw an error");
+		});
+
+	});
+
+	describe("localStorageDatabase", () => {
+
+		it("should check empty value", () => {
+			assert.throws(() => { logs.showInConsole(); }, ReferenceError, "check empty value does not throw an error");
+		});
+
+		it("should check wrong type value", () => {
+			assert.throws(() => { logs.showInConsole("test"); }, TypeError, "check empty value does not throw an error");
+		});
+
+		it("should check write type value", () => {
+			assert.doesNotThrow(() => { logs.showInConsole(true); }, Error, "check type value throw an error");
+		});
+
+	});
+
+});
 
 describe("write", () => {
 
@@ -68,7 +115,9 @@ describe("write", () => {
 			}
 
 		}).then(() => {
+
 			return logs.init();
+
 		});
 
 	});
@@ -115,15 +164,9 @@ describe("write", () => {
 
 });
 
-/*describe("read", () =>  {
+describe("read", () =>  {
 
-	it("should return the last writable file", () =>  {
-
-		return logs.lastWritableFile().then((lastwritablefile) =>  {
-			assert.strictEqual("string", typeof lastwritablefile, "returned value is not a string");
-		});
-
-	});
+	/*
 
 	it("should return registered log files", () =>  {
 
@@ -146,7 +189,9 @@ describe("write", () => {
 
 	});
 
-});*/
+	*/
+
+});
 
 describe("delete", () =>  {
 
