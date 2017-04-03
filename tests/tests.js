@@ -2,74 +2,340 @@
 
 // deps
 
-	const	path = require("path"),
-			assert = require("assert"),
-
-			fs = require("node-promfs"),
-
-			NodeLogs = require(path.join(__dirname, "..", "dist", "main.js"));
+	const path = require("path");
+	const fs = require("fs");
+	const assert = require("assert");
+	const NodeLogs = require(path.join(__dirname, "..", "dist", "main.js"));
 
 // private
 
-	var sDir = path.join(__dirname, "logs"),
-		Logs = new NodeLogs(sDir),
+	// attrs
 
-		date = new Date(),
-		sYear = date.getFullYear() + "",
-		sMonth = (9 < date.getMonth() + 1) ? date.getMonth() + 1 + "" : "0" + (date.getMonth() + 1),
-		sDay = (9 < date.getDate()) ? date.getDate() + "" : "0" + date.getDate();
+		var dirDB = path.join(__dirname, "logs.db");
+		var logs = new NodeLogs();
 
-describe("errors", () => {
+describe("accessors", () => {
 
-	after(() => { return fs.rmdirpProm(sDir); });
+	describe("deleteLogsAfterXDays", () => {
 
-	it("should check pathDirLogs type value", () => {
-		assert.throws(() => { Logs.pathDirLogs = 15; }, Error, "check type value does not throw an error");
-		assert.doesNotThrow(() => { Logs.pathDirLogs = sDir; }, Error, "check type value throw an error");
+		it("should check empty value", () => {
+			assert.throws(() => { logs.deleteLogsAfterXDays(); }, ReferenceError, "check empty value does not throw an error");
+		});
+
+		it("should check wrong type value", () => {
+			assert.throws(() => { logs.deleteLogsAfterXDays(false); }, TypeError, "check empty value does not throw an error");
+		});
+
+		it("should check right type value", () => {
+			assert.doesNotThrow(() => { logs.deleteLogsAfterXDays(600); }, Error, "check type value throw an error");
+		});
+
+	});
+
+	describe("localStorageDatabase", () => {
+
+		it("should check empty value", () => {
+			assert.throws(() => { logs.localStorageDatabase(); }, ReferenceError, "check empty value does not throw an error");
+		});
+
+		it("should check wrong type value", () => {
+			assert.throws(() => { logs.localStorageDatabase(false); }, TypeError, "check empty value does not throw an error");
+		});
+
+		it("should check write type value", () => {
+			assert.doesNotThrow(() => { logs.localStorageDatabase(dirDB); }, Error, "check type value throw an error");
+		});
+
+	});
+
+	describe("localStorageDatabase", () => {
+
+		it("should check empty value", () => {
+			assert.throws(() => { logs.showInConsole(); }, ReferenceError, "check empty value does not throw an error");
+		});
+
+		it("should check wrong type value", () => {
+			assert.throws(() => { logs.showInConsole("test"); }, TypeError, "check empty value does not throw an error");
+		});
+
+		it("should check write type value", () => {
+			assert.doesNotThrow(() => { logs.showInConsole(true); }, Error, "check type value throw an error");
+		});
+
 	});
 
 });
 
 describe("write", () => {
 
-	before(() => { return fs.rmdirpProm(sDir); });
+	before(() => {
+
+		return new Promise((resolve, reject) => {
+
+			fs.lstat(dirDB, (err, stats) => {
+
+				if (err) {
+
+					if (err.code && "ENOENT" === err.code) {
+						resolve(false);
+					}
+					else {
+						reject(err);
+					}
+					
+				}
+				else {
+					resolve(stats.isFile());
+				}
+
+			});
+
+		}).then((isFile) => {
+
+			if (!isFile) {
+				return Promise.resolve();
+			}
+			else {
+
+				return new Promise((resolve, reject) => {
+
+					fs.unlink(dirDB, (err) => {
+
+						if (err) {
+							reject(err);
+						}
+						else {
+							resolve();
+						}
+
+					});
+
+				});
+				
+			}
+
+		}).then(() => {
+
+			return logs
+				.localStorageDatabase(dirDB)
+				.deleteLogsAfterXDays(600)
+				.showInConsole(true)
+				.init();
+
+		});
+
+	});
 
 	it("should test log function", () => {
 
-		return Logs.log("log").then(() => {
-			return Logs.log({ test: "test" });
+		return logs.log("log").then(() => {
+			return logs.log({ test: "test" });
 		}).then(() => {
-			return Logs.log([ "01", "02", "03" ]);
+			return logs.log([ "01", "02", "03" ]);
 		});
 
 	});
 
 	it("should test info function", () => {
 
-		return Logs.info("info");
+		return logs.info("info");
 
 	});
 
 	it("should test success function", () => {
 
-		return Logs.ok("ok").then(() => {
-			return Logs.success("success");
+		return logs.ok("ok").then(() => {
+			return logs.success("success");
 		});
 
 	});
 
 	it("should test warning function", () => {
 
-		return Logs.warn("warn").then(() => {
-			return Logs.warning("warning");
+		return logs.warn("warn").then(() => {
+			return logs.warning("warning");
 		});
 
 	});
 
 	it("should test error function", () => {
 
-		return Logs.err("err").then(() => {
-			return Logs.error("error");
+		return logs.err("err").then(() => {
+			return logs.error("error");
+		});
+
+	});
+
+});
+
+describe("interface", () => {
+
+	it("should check empty value", () => {
+
+		return logs.addInterface().catch((err) => {
+			return (err instanceof ReferenceError && "Missing \"logInterface\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+		});
+
+	});
+
+	it("should check wrong type value", () => {
+
+		return logs.addInterface(false).catch((err) => {
+			return (err instanceof TypeError && "\"logInterface\" data is not an object" === err.message) ? Promise.resolve() : Promise.reject(err);
+		});
+
+	});
+
+	describe("log", () => {
+
+		it("should add interface without \"log\"", () => {
+
+			return logs.addInterface({
+
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.log\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"log\"", () => {
+
+			return logs.addInterface({
+				log : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.log\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("success", () => {
+
+		it("should add interface without \"success\"", () => {
+
+			return logs.addInterface({
+				log : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.success\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"success\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.success\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("info", () => {
+
+		it("should add interface without \"info\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.info\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"info\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.info\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("warning", () => {
+
+		it("should add interface without \"warning\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.warning\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"warning\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : () => {},
+				warning : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.warning\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("error", () => {
+
+		it("should add interface without \"error\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : () => {},
+				warning : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.error\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"error\"", () => {
+
+			return logs.addInterface({
+				log : (msg) => {},
+				success : () => {},
+				info : () => {},
+				warning : () => {},
+				error : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.error\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("right", () => {
+
+		it("should test interface", () => {
+
+			return logs.addInterface({
+				log : (msg) => { (0, console).log(msg); },
+				success : () => {},
+				info : () => {},
+				warning : () => {},
+				error : () => {}
+			}).then(() => {
+				return logs.log("test");
+			});
+
 		});
 
 	});
@@ -78,43 +344,65 @@ describe("write", () => {
 
 describe("read", () =>  {
 
-	it("should return the last writable file", () =>  {
+	after(() => { 
 
-		return Logs.lastWritableFile().then((lastwritablefile) =>  {
-			assert.strictEqual("string", typeof lastwritablefile, "returned value is not a string");
+		return logs.release().then(() => {
+
+			fs.unlink(dirDB, (err) => {
+
+				if (err) {
+					reject(err);
+				}
+				else {
+					resolve();
+				}
+
+			});
+
+		});
+ 	});
+
+	describe("getLogs", () =>  {
+
+		it("should check getLogs", () =>  {
+
+			return logs.getLogs().then((data) => {
+
+				let date = new Date();
+
+				assert.deepEqual(
+					[
+						{
+							year: date.getFullYear() + "",
+							month: ((9 < date.getMonth() + 1) ? date.getMonth() + 1 : "0" + (date.getMonth() + 1)) + "",
+							day: ((9 < date.getDate()) ? date.getDate() : "0" + date.getDate()) + ""
+						}
+					],
+					data,
+					"returned value is not the current date"
+				);
+
+				return Promise.resolve();
+
+			});
+
 		});
 
 	});
 
-	it("should return registered log files", () =>  {
+	describe("readLog", () =>  {
 
-		return Logs.getLogs().then((logs) =>  {
+		it("should return registered log files", () =>  {
 
-			assert.strictEqual(true, logs instanceof Object, "returned value is not an Object");
-			assert.strictEqual(true, logs[sYear] && logs[sYear] instanceof Object, "returned value is not an Object with year");
-			assert.strictEqual(true, logs[sYear][sMonth] && logs[sYear][sMonth] instanceof Object, "returned value is not an Object with month");
-			assert.strictEqual(true, logs[sYear][sMonth][sDay] && logs[sYear][sMonth][sDay] instanceof Object, "returned value is not an Object with day");
-
-			return Logs.read(sYear, sMonth, sDay, 1);
-
-		}).then((txt) =>  {
-
-			assert.strictEqual("string", typeof txt, "returned value is not a string");
-			assert.strictEqual("<table class=\"node-logs\">", txt.substring(0, "<table class=\"node-logs\">".length), "returned value is not correctely formated");
-			assert.strictEqual("</table>", txt.substring(txt.length - "</table>".length, txt.length), "returned value is not correctely formated");
+			return logs.getLogs().then((data) =>  {
+				return logs.readLog(data[0].year, data[0].month, data[0].day);
+			}).then((data) =>  {
+				assert.strictEqual("object", typeof data, "returned value is not an object");
+				return Promise.resolve();
+			});
 
 		});
 
-	});
-
-});
-
-describe("delete", () =>  {
-
-	after(() => { return fs.rmdirpProm(sDir); });
-
-	it("should delete logs for an entiere day", () =>  {
-		return Logs.removeDay(sYear, sMonth, sDay);
 	});
 
 });
