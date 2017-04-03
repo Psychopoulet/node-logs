@@ -1,2 +1,3 @@
-*.html
+*.db
+*.db-journal
 node_modules/
