@@ -27,7 +27,7 @@ describe("accessors", () => {
 		});
 
 		it("should check right type value", () => {
-			assert.doesNotThrow(() => { logs.deleteLogsAfterXDays(2); }, Error, "check type value throw an error");
+			assert.doesNotThrow(() => { logs.deleteLogsAfterXDays(600); }, Error, "check type value throw an error");
 		});
 
 	});
@@ -116,7 +116,11 @@ describe("write", () => {
 
 		}).then(() => {
 
-			return logs.init();
+			return logs
+				.localStorageDatabase(dirDB)
+				.deleteLogsAfterXDays(600)
+				.showInConsole(true)
+				.init();
 
 		});
 
@@ -166,9 +170,33 @@ describe("write", () => {
 
 describe("read", () =>  {
 
-	/*
+	it("should check getLogs", () =>  {
+
+		return logs.getLogs().then((rows) => {
+
+			let date = new Date();
+
+			assert.deepEqual(
+				[
+					{
+						year: date.getFullYear() + "",
+						month: ((9 < date.getMonth() + 1) ? date.getMonth() + 1 : "0" + (date.getMonth() + 1)) + "",
+						day: ((9 < date.getDate()) ? date.getDate() : "0" + date.getDate()) + ""
+					}
+				],
+				rows,
+				"returned value is not the current date"
+			);
+
+			return Promise.resolve();
+
+		});
+
+	});
 
 	it("should return registered log files", () =>  {
+
+		/*
 
 		return logs.getLogs().then((logs) =>  {
 
@@ -187,9 +215,9 @@ describe("read", () =>  {
 
 		});
 
-	});
+		*/
 
-	*/
+	});
 
 });
 

@@ -361,25 +361,39 @@ module.exports = function () {
 
 	}, {
 		key: "getLogs",
-		value: function getLogs() {}
+		value: function getLogs() {
+			var _this4 = this;
 
-		/*return fs.readdirProm(_pathDirLogs).then((files) =>  {
-  			let result = {};
-  			files.forEach((file) =>  {
-  				file = file.replace(".html", "").split("_");
-  				if (!result[file[0]]) {
-  			result[file[0]] = {};
-  		}
-  		if ( !result [file[0]] [file[1]] ) {
-  			result [file[0]] [file[1]] = {};
-  		}
-  		if ( !result [file[0]] [file[1]] [file[2]] ) {
-  			result [file[0]] [file[1]] [file[2]] = [];
-  		}
-  				result [file[0]] [file[1]] [file[2]] .push(file[3]);
-  			});
-  			return Promise.resolve(result);
-  		});*/
+			return new Promise(function (resolve, reject) {
+
+				_this4._localStorageObject.all("SELECT " + "strftime(\"%Y\", _datetime) AS year, strftime(\"%m\", _datetime) AS month, strftime(\"%d\", _datetime) AS day " + "FROM logs " + "GROUP BY year, month, day;", function (err, rows) {
+
+					if (err) {
+						reject(err);
+					} else {
+						resolve(rows);
+					}
+				});
+			});
+
+			/*return fs.readdirProm(_pathDirLogs).then((files) =>  {
+   			let result = {};
+   			files.forEach((file) =>  {
+   				file = file.replace(".html", "").split("_");
+   				if (!result[file[0]]) {
+   			result[file[0]] = {};
+   		}
+   		if ( !result [file[0]] [file[1]] ) {
+   			result [file[0]] [file[1]] = {};
+   		}
+   		if ( !result [file[0]] [file[1]] [file[2]] ) {
+   			result [file[0]] [file[1]] [file[2]] = [];
+   		}
+   				result [file[0]] [file[1]] [file[2]] .push(file[3]);
+   			});
+   			return Promise.resolve(result);
+   		});*/
+		}
 
 		/*read (year, month, day, filenumber) {
   
@@ -491,7 +505,7 @@ module.exports = function () {
 		value: function err(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(msg.red);
+				(1, console).error(msg.red);
 			}
 
 			return _input(this._interfaces, msg, "error");
