@@ -168,7 +168,199 @@ describe("write", () => {
 
 });
 
+describe("interface", () => {
+
+	it("should check empty value", () => {
+
+		return logs.addInterface().catch((err) => {
+			return (err instanceof ReferenceError && "Missing \"logInterface\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+		});
+
+	});
+
+	it("should check wrong type value", () => {
+
+		return logs.addInterface(false).catch((err) => {
+			return (err instanceof TypeError && "\"logInterface\" data is not an object" === err.message) ? Promise.resolve() : Promise.reject(err);
+		});
+
+	});
+
+	describe("log", () => {
+
+		it("should add interface without \"log\"", () => {
+
+			return logs.addInterface({
+
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.log\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"log\"", () => {
+
+			return logs.addInterface({
+				log : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.log\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("success", () => {
+
+		it("should add interface without \"success\"", () => {
+
+			return logs.addInterface({
+				log : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.success\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"success\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.success\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("info", () => {
+
+		it("should add interface without \"info\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.info\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"info\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.info\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("warning", () => {
+
+		it("should add interface without \"warning\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.warning\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"warning\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : () => {},
+				warning : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.warning\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("error", () => {
+
+		it("should add interface without \"error\"", () => {
+
+			return logs.addInterface({
+				log : () => {},
+				success : () => {},
+				info : () => {},
+				warning : () => {}
+			}).catch((err) => {
+				return (err instanceof ReferenceError && "Missing \"logInterface.error\" data" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+		it("should add interface with wrong \"error\"", () => {
+
+			return logs.addInterface({
+				log : (msg) => {},
+				success : () => {},
+				info : () => {},
+				warning : () => {},
+				error : false
+			}).catch((err) => {
+				return (err instanceof TypeError && "\"logInterface.error\" data is not a function" === err.message) ? Promise.resolve() : Promise.reject(err);
+			});
+
+		});
+
+	});
+
+	describe("right", () => {
+
+		it("should test interface", () => {
+
+			return logs.addInterface({
+				log : (msg) => { (0, console).log(msg); },
+				success : () => {},
+				info : () => {},
+				warning : () => {},
+				error : () => {}
+			}).then(() => {
+				return logs.log("test");
+			});
+
+		});
+
+	});
+
+});
+
 describe("read", () =>  {
+
+	after(() => { 
+
+		return logs.release().then(() => {
+
+			fs.unlink(dirDB, (err) => {
+
+				if (err) {
+					reject(err);
+				}
+				else {
+					resolve();
+				}
+
+			});
+
+		});
+ 	});
 
 	describe("getLogs", () =>  {
 
@@ -199,24 +391,6 @@ describe("read", () =>  {
 	});
 
 	describe("readLog", () =>  {
-
-		after(() => { 
-
-			return logs.release().then(() => {
-
-				fs.unlink(dirDB, (err) => {
-
-					if (err) {
-						reject(err);
-					}
-					else {
-						resolve();
-					}
-
-				});
-
-			});
-	 	});
 
 		it("should return registered log files", () =>  {
 
