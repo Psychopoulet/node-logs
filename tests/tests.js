@@ -170,79 +170,65 @@ describe("write", () => {
 
 describe("read", () =>  {
 
-	it("should check getLogs", () =>  {
+	describe("getLogs", () =>  {
 
-		return logs.getLogs().then((rows) => {
+		it("should check getLogs", () =>  {
 
-			let date = new Date();
+			return logs.getLogs().then((data) => {
 
-			assert.deepEqual(
-				[
-					{
-						year: date.getFullYear() + "",
-						month: ((9 < date.getMonth() + 1) ? date.getMonth() + 1 : "0" + (date.getMonth() + 1)) + "",
-						day: ((9 < date.getDate()) ? date.getDate() : "0" + date.getDate()) + ""
-					}
-				],
-				rows,
-				"returned value is not the current date"
-			);
+				let date = new Date();
 
-			return Promise.resolve();
+				assert.deepEqual(
+					[
+						{
+							year: date.getFullYear() + "",
+							month: ((9 < date.getMonth() + 1) ? date.getMonth() + 1 : "0" + (date.getMonth() + 1)) + "",
+							day: ((9 < date.getDate()) ? date.getDate() : "0" + date.getDate()) + ""
+						}
+					],
+					data,
+					"returned value is not the current date"
+				);
 
-		});
-
-	});
-
-	it("should return registered log files", () =>  {
-
-		/*
-
-		return logs.getLogs().then((logs) =>  {
-
-			assert.strictEqual(true, logs instanceof Object, "returned value is not an Object");
-			assert.strictEqual(true, logs[sYear] && logs[sYear] instanceof Object, "returned value is not an Object with year");
-			assert.strictEqual(true, logs[sYear][sMonth] && logs[sYear][sMonth] instanceof Object, "returned value is not an Object with month");
-			assert.strictEqual(true, logs[sYear][sMonth][sDay] && logs[sYear][sMonth][sDay] instanceof Object, "returned value is not an Object with day");
-
-			return logs.read(sYear, sMonth, sDay, 1);
-
-		}).then((txt) =>  {
-
-			assert.strictEqual("string", typeof txt, "returned value is not a string");
-			assert.strictEqual("<table class=\"node-logs\">", txt.substring(0, "<table class=\"node-logs\">".length), "returned value is not correctely formated");
-			assert.strictEqual("</table>", txt.substring(txt.length - "</table>".length, txt.length), "returned value is not correctely formated");
-
-		});
-
-		*/
-
-	});
-
-});
-
-describe("delete", () =>  {
-
-	after(() => { 
-
-		return logs.release().then(() => {
-
-			fs.unlink(dirDB, (err) => {
-
-				if (err) {
-					reject(err);
-				}
-				else {
-					resolve();
-				}
+				return Promise.resolve();
 
 			});
 
 		});
- 	});
 
-	/*it("should delete logs for an entiere day", () =>  {
-		return logs.removeDay(sYear, sMonth, sDay);
-	});*/
+	});
+
+	describe("readLog", () =>  {
+
+		after(() => { 
+
+			return logs.release().then(() => {
+
+				fs.unlink(dirDB, (err) => {
+
+					if (err) {
+						reject(err);
+					}
+					else {
+						resolve();
+					}
+
+				});
+
+			});
+	 	});
+
+		it("should return registered log files", () =>  {
+
+			return logs.getLogs().then((data) =>  {
+				return logs.readLog(data[0].year, data[0].month, data[0].day);
+			}).then((data) =>  {
+				assert.strictEqual("object", typeof data, "returned value is not an object");
+				return Promise.resolve();
+			});
+
+		});
+
+	});
 
 });

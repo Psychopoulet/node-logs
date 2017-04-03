@@ -268,7 +268,7 @@ module.exports = function () {
 				// delete old logs
 			}).then(function () {
 
-				return new Promise(function (resolve) {
+				return new Promise(function (resolve, reject) {
 
 					_this._localStorageObject.run("DELETE FROM logs WHERE _datetime <= date('now', '-" + _this._deleteLogsAfterXDays + " days');", function (err) {
 
@@ -375,88 +375,44 @@ module.exports = function () {
 					}
 				});
 			});
-
-			/*return fs.readdirProm(_pathDirLogs).then((files) =>  {
-   			let result = {};
-   			files.forEach((file) =>  {
-   				file = file.replace(".html", "").split("_");
-   				if (!result[file[0]]) {
-   			result[file[0]] = {};
-   		}
-   		if ( !result [file[0]] [file[1]] ) {
-   			result [file[0]] [file[1]] = {};
-   		}
-   		if ( !result [file[0]] [file[1]] [file[2]] ) {
-   			result [file[0]] [file[1]] [file[2]] = [];
-   		}
-   				result [file[0]] [file[1]] [file[2]] .push(file[3]);
-   			});
-   			return Promise.resolve(result);
-   		});*/
 		}
+	}, {
+		key: "readLog",
+		value: function readLog(year, month, day) {
+			var _this5 = this;
 
-		/*read (year, month, day, filenumber) {
-  
-  	let sText = "<tr class=\"line\">";
-  				sText += "<th class=\"time\">" + _formatedTime() + "</th>";
-  		
-  		sText += "<td class=\"message " + type + "\">";
-  			sText += ("object" === typeof msg) ? JSON.stringify(msg) : msg;
-  		sText += "</td>";
-  		
-  	sText += "</tr>";
-  
-  
-  	let file = path.join(_pathDirLogs, year + "_" + month + "_" + day + "_" + filenumber + ".html");
-  			return fs.isFileProm(file).then((exists) =>  {
-  				if (!exists) {
-  			return Promise.resolve("<table class=\"node-logs\"><tbody class=\"list\"></tbody></table>");
-  		}
-  		else {
-  					return fs.readFileProm(file, "utf8").then((content) =>  {
-  				return Promise.resolve("<table class=\"node-logs\"><tbody class=\"list\">" + content + "</tbody></table>");
-  			}).catch((err) =>  {
-  				return Promise.reject((err.message) ? err.message : err);
-  			});
-  		
-  		}
-  			});
-  		}
-  */
+			return new Promise(function (resolve, reject) {
 
-		/*// delete log
-  
-  	remove (year, month, day, filenumber) {
-  
-  		return fs.unlinkProm(
-  			path.join(_pathDirLogs, year + "_" + month + "_" + day + "_" + filenumber + ".html")
-  		);
-  
-  	}
-  
-  
-  	function _delete(that, filenumber, year, month, day, logs) {
-  
-  		return that.remove(year, month, day, logs[year][month][day][filenumber]).then(() =>  {
-  
-  			if (filenumber + 1 < logs[year][month][day].length) {
-  				return _delete(that, filenumber + 1, year, month, day, logs);
-  			}
-  			else {
-  				return Promise.resolve();
-  			}
-  			
-  		});
-  
-  	}
-  
-  	removeDay (year, month, day) {
-  
-  		return this.getLogs().then((logs) =>  {
-  			return _delete(this, 0, year, month, day, logs);
-  		});
-  
-  	}*/
+				var stmt = _this5._localStorageObject.prepare("SELECT message, type, _datetime " + "FROM logs " + "WHERE strftime(\"%Y\", _datetime) = ? AND strftime(\"%m\", _datetime) = ? AND strftime(\"%d\", _datetime) = ?;");
+
+				stmt.all(year, month, day, function (err, rows) {
+
+					stmt.finalize();
+
+					if (err) {
+						reject(err);
+					} else {
+						resolve(rows);
+					}
+				});
+			}).then(function (rows) {
+
+				var result = [];
+
+				rows.forEach(function (row) {
+
+					var date = new Date(row._datetime);
+
+					result.push({
+						time: (9 < date.getHours() ? date.getHours() : "0" + date.getHours()) + ":" + (9 < date.getMinutes() ? date.getMinutes() : "0" + date.getMinutes()),
+						message: row.message,
+						type: row.type
+					});
+				});
+
+				return Promise.resolve(result);
+			});
+		}
 
 		// log
 
