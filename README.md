@@ -33,40 +33,90 @@ $ npm install node-logs
 
   -- Methods --
 
+  * -- Accessors --
   * ``` deleteLogsAfterXDays (integer deleteLogsAfterXDays) : this ```
   * ``` localStorageDatabase (string localStorageDatabase) : this ```
   * ``` showInConsole (boolean showInConsole) : this ```
 
+  * -- Init / Release --
   * ``` init () : Promise ``` create local storage if not exists and delete old logs
   * ``` release () : Promise ```
 
+  * -- Interfaces --
   * ``` addInterface () : Promise // add your own way to log data ```
 
+  * -- Write logs --
   * ``` log (string text) : Promise ```
   * ``` success (string text) : Promise ``` alias : "ok"
   * ``` warning (string text) : Promise ``` alias : "warn"
   * ``` error (string text) : Promise ```   alias : "err"
   * ``` info (string text) : Promise ```
 
-  * ``` getLogs () : Promise ``` then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
-  * ``` read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ``` then((HTMLLogs) => {})
-  * ``` lastWritableFile () : Promise ``` then((filepath) => {})
-  * ``` remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ```
-  * ``` removeDay (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>) : Promise ``` remove all this day's logs
+  * -- Read logs --
+  * ``` getLogs() : Promise ``` then((Array logs) => { logs.forEach((log) => { console.log(log.year, log.month, log.day); }); })
+  * ``` readLog (string year (f=yyyy), string month (f=mm), string day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
 
 ## Examples
 
 ```js
-var logs = new (require('node-logs'))();
+const Logs = new (require('node-logs'))();
+const logs = new Logs();
+```
 
+```js
+// optionnal : configure the logger
 logs
   .deleteLogsAfterXDays(2)
   .localStorageDatabase(require('path').join(__dirname, 'logs.db'))
   .showInConsole(false);
+```
 
-logs.init(() => {
+```js
+// example: link the logger to a Web API
+const http = require('http');
 
-  // write
+function _myOwnLogger(type, msg) {
+
+  http.request({
+    host: 'www.myownloger.com',
+    method: 'PUT',
+    path: '/api/' + type + '/',
+    data: {
+      message: msg
+    }
+  }, (err) => {
+    if (err) { console.log(err); }
+  }).end();
+
+}
+
+logs.addInterface({
+
+  log : (msg) => { _myOwnLogger('log', msg); },
+  success : (msg) => { _myOwnLogger('success', msg); },
+  info : (msg) => { _myOwnLogger('info', msg); },
+  warning : (msg) => { _myOwnLogger('warning', msg); },
+  error : (msg) => { _myOwnLogger('error', msg); }
+
+}).then(() => {
+  console.log("MyOwnLoger added !");
+}).catch((err) => {
+  console.error(err);
+});
+```
+
+```js
+return logs.init().then(() => {
+
+  // you can use the logger in a classical way
+
+  logs.log('log');
+  logs.success('success'); logs.ok('ok');
+  logs.info('info');
+  logs.warning('warning'); logs.warn('warn');
+  logs.error('error'); logs.err('err');
+
+  // or with promises if you added an asynchronous interface
 
   logs.log('log').then(() => {
 
