@@ -16,6 +16,34 @@ var sqlite3 = require("sqlite3");
 
 // methods
 
+function _formatedTime(date) {
+
+	var result = "",
+	    hours = date.getHours(),
+	    minutes = date.getMinutes();
+
+	result += 9 < hours ? hours : "0" + hours;
+	result += ":";
+	result += 9 < minutes ? minutes : "0" + minutes;
+
+	return result;
+}
+
+function _formatedDate(date) {
+
+	var result = "",
+	    month = date.getMonth() + 1,
+	    day = date.getDate();
+
+	result += date.getFullYear();
+	result += "-";
+	result += 9 < month ? month : "0" + month;
+	result += "-";
+	result += 9 < day ? day : "0" + day;
+
+	return result;
+}
+
 function _inputInterfaces(interfaces, i, msg, type) {
 
 	if (i >= interfaces.length) {
@@ -401,10 +429,9 @@ module.exports = function () {
 
 				rows.forEach(function (row) {
 
-					var date = new Date(row._datetime);
-
 					result.push({
-						time: (9 < date.getHours() ? date.getHours() : "0" + date.getHours()) + ":" + (9 < date.getMinutes() ? date.getMinutes() : "0" + date.getMinutes()),
+						date: _formatedDate(new Date(row._datetime)),
+						time: _formatedTime(new Date(row._datetime)),
 						message: row.message,
 						type: row.type
 					});
@@ -421,7 +448,7 @@ module.exports = function () {
 		value: function log(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(msg);
+				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg);
 			}
 
 			return _input(this._interfaces, msg, "log");
@@ -431,7 +458,7 @@ module.exports = function () {
 		value: function ok(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(msg.green);
+				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.green);
 			}
 
 			return _input(this._interfaces, msg, "success");
@@ -446,7 +473,7 @@ module.exports = function () {
 		value: function warn(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(msg.yellow);
+				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.yellow);
 			}
 
 			return _input(this._interfaces, msg, "warning");
@@ -461,7 +488,7 @@ module.exports = function () {
 		value: function err(msg) {
 
 			if (this._showInConsole) {
-				(1, console).error(msg.red);
+				(1, console).error(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.red);
 			}
 
 			return _input(this._interfaces, msg, "error");
@@ -476,7 +503,7 @@ module.exports = function () {
 		value: function info(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(msg.cyan);
+				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.cyan);
 			}
 
 			return _input(this._interfaces, msg, "info");
