@@ -1,5 +1,5 @@
 # node-logs
-A class to manage basic logs
+A class to manage logs
 
 
 ## Installation
@@ -11,85 +11,155 @@ $ npm install node-logs
 ## Features
 
   * Show logs in the command prompt
-  * Save logs in html formate, order by date (different files) & time
-  * Split files to avoid too-sized logs
-  * Read file in html formate
-  * Delete file
+  * Save logs in sqlite formate, order by date (different files) & time
+  * Add interfaces to use new specific way to log data (api, json, etc...)
+  * Delete old x days logs
+  * Read logs
+  * Delete logs
 
 ## Doc
 
   -- Attributes --
 
-  * ``` string pathDirLogs ```    where the log files are stored
-  * ``` boolean showInConsole ``` disable logs in command prompt (prod ?)
-  * ``` boolean showInFiles ```   disable logs in files (debug ?)
+  * ``` integer _deleteLogsAfterXDays ``` limit old logs
+  * ``` string _localStorageDatabase ``` where the local logs are stored (path)
+  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object)
+  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?)
+  * ``` Array _interfaces ``` disable logs in files (debug ?)
 
   -- Constructor --
 
-  * ``` constructor ([ string pathDirLogs, [ boolean showInConsole, [ boolean showInFiles ] ] ]) ```
+  * ``` constructor () ```
 
   -- Methods --
 
-  * ``` getLogs () : Promise ``` then((logs) => {}) => { '<year>': { '<month1>': [ '<day1>', '<day2>', ... ], ... }, ... }
-  * ``` read (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ``` then((HTMLLogs) => {})
-  * ``` lastWritableFile () : Promise ``` then((filepath) => {})
-  * ``` remove (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>, string|int filenumber) : Promise ```
-  * ``` removeDay (string year (f=yyyy)>, string month (f=mm)>, string day (f=dd)>) : Promise ``` remove all this day's logs
+  * -- Accessors --
+  * ``` deleteLogsAfterXDays (integer deleteLogsAfterXDays) : this ```
+  * ``` localStorageDatabase (string localStorageDatabase) : this ```
+  * ``` showInConsole (boolean showInConsole) : this ```
 
-  * ``` logInFile (string text, string type) : Promise ``` create your own logs
+  * -- Init / Release --
+  * ``` init () : Promise ``` create local storage if not exists and delete old logs
+  * ``` release () : Promise ```
+
+  * -- Interfaces --
+  * ``` addInterface () : Promise // add your own way to log data ```
+
+  * -- Write logs --
   * ``` log (string text) : Promise ```
   * ``` success (string text) : Promise ``` alias : "ok"
   * ``` warning (string text) : Promise ``` alias : "warn"
   * ``` error (string text) : Promise ```   alias : "err"
   * ``` info (string text) : Promise ```
 
+  * -- Read logs --
+  * ``` getLogs() : Promise ``` then((Array logs) => { logs.forEach((log) => { console.log(log.year, log.month, log.day); }); })
+  * ``` readLog (string year (f=yyyy), string month (f=mm), string day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
+
 ## Examples
 
 ```js
-var Logs = new (require('node-logs'))('/var/node-logs/logs');
+const Logs = new (require('node-logs'))();
+const logs = new Logs();
+```
 
-Logs.log('log');
-Logs.ok('ok');
-Logs.warn('warn');
-Logs.err('err');
-Logs.info('info');
+```js
+// optionnal : configure the logger
+logs
+  .deleteLogsAfterXDays(2)
+  .localStorageDatabase(require('path').join(__dirname, 'logs.db'))
+  .showInConsole(false);
+```
 
-Logs.log('log').then(() => {
+```js
+// example: link the logger to a Web API
+const http = require('http');
 
-   return Logs.ok('ok').then(() => {
-      return Logs.success('success');
-   });
+function _myOwnLogger(type, msg) {
+
+  http.request({
+    host: 'www.myownloger.com',
+    method: 'PUT',
+    path: '/api/' + type + '/',
+    data: {
+      message: msg
+    }
+  }, (err) => {
+    if (err) { console.log(err); }
+  }).end();
+
+}
+
+logs.addInterface({
+
+  log : (msg) => { _myOwnLogger('log', msg); },
+  success : (msg) => { _myOwnLogger('success', msg); },
+  info : (msg) => { _myOwnLogger('info', msg); },
+  warning : (msg) => { _myOwnLogger('warning', msg); },
+  error : (msg) => { _myOwnLogger('error', msg); }
 
 }).then(() => {
-
-   return Logs.warn('warn').then(() => {
-      return Logs.warning('warning');
-   });
-
-}).then(() => {
-
-   return Logs.err('err').then(() => {
-      return Logs.error('error');
-   });
-
-}).then(() => {
-   return Logs.info('info');
+  console.log("MyOwnLoger added !");
 }).catch((err) => {
-   console.log(err);
+  console.error(err);
 });
+```
 
-Logs.pathDirLogs = require('path').join(__dirname, 'logs');
-Logs.showInConsole = true;
-Logs.showInFiles = false;
+```js
+return logs.init().then(() => {
 
-Logs.getLogs().then((logs) => {
-   return Logs.read(year, month, day, 1);
-}).then((content) => {
-   return Logs.removeDay(year, month, day);
-}).then(() => {
-   console.log('removed');
-}).catch((err) => {
-   console.log(err);
+  // you can use the logger in a classical way
+
+  logs.log('log');
+  logs.success('success'); logs.ok('ok');
+  logs.info('info');
+  logs.warning('warning'); logs.warn('warn');
+  logs.error('error'); logs.err('err');
+
+  // or with promises if you added an asynchronous interface
+
+  logs.log('log').then(() => {
+
+     return logs.ok('ok').then(() => {
+        return logs.success('success');
+     });
+
+  }).then(() => {
+
+     return logs.warn('warn').then(() => {
+        return logs.warning('warning');
+     });
+
+  }).then(() => {
+
+     return logs.err('err').then(() => {
+        return logs.error('error');
+     });
+
+  }).then(() => {
+     return logs.info('info');
+  }).catch((err) => {
+     console.log(err);
+  });
+
+  // read
+
+  logs.getLogs().then((logs) => {
+     return logs.read(year, month, day, 1);
+  }).then((content) => {
+     return logs.removeDay(year, month, day);
+  }).then(() => {
+     console.log('removed');
+  }).catch((err) => {
+     console.log(err);
+  });
+
+  // release
+
+  logs.release().catch((err) => {
+     console.log(err);
+  });
+
 });
 ```
 
