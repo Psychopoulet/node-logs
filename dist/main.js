@@ -411,18 +411,33 @@ module.exports = function () {
 
 			return new Promise(function (resolve, reject) {
 
-				var stmt = _this5._localStorageObject.prepare("SELECT message, type, _datetime " + "FROM logs " + "WHERE strftime(\"%Y\", _datetime) = ? AND strftime(\"%m\", _datetime) = ? AND strftime(\"%d\", _datetime) = ?;");
+				if ("undefined" === typeof year) {
+					reject(new ReferenceError("Missing \"year\" data"));
+				} else if ("string" !== typeof year) {
+					reject(new TypeError("\"year\" data is not a string"));
+				} else if ("undefined" === typeof month) {
+					reject(new ReferenceError("Missing \"month\" data"));
+				} else if ("string" !== typeof month) {
+					reject(new TypeError("\"month\" data is not a string"));
+				} else if ("undefined" === typeof day) {
+					reject(new ReferenceError("Missing \"day\" data"));
+				} else if ("string" !== typeof day) {
+					reject(new TypeError("\"day\" data is not a string"));
+				} else {
 
-				stmt.all(year, month, day, function (err, rows) {
+					var stmt = _this5._localStorageObject.prepare("SELECT message, type, _datetime " + "FROM logs " + "WHERE strftime(\"%Y\", _datetime) = ? AND strftime(\"%m\", _datetime) = ? AND strftime(\"%d\", _datetime) = ?;");
 
-					stmt.finalize();
+					stmt.all(year, month, day, function (err, rows) {
 
-					if (err) {
-						reject(err);
-					} else {
-						resolve(rows);
-					}
-				});
+						stmt.finalize();
+
+						if (err) {
+							reject(err);
+						} else {
+							resolve(rows);
+						}
+					});
+				}
 			}).then(function (rows) {
 
 				var result = [];
