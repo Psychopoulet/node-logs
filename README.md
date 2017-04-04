@@ -15,7 +15,6 @@ $ npm install node-logs
   * Add interfaces to use new specific way to log data (api, json, etc...)
   * Delete old x days logs
   * Read logs
-  * Delete logs
 
 ## Doc
 
