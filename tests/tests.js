@@ -131,6 +131,8 @@ describe("write", () => {
 		return logs.log("log").then(() => {
 			return logs.log({ test: "test" });
 		}).then(() => {
+			return logs.log("");
+		}).then(() => {
 			return logs.log([ "01", "02", "03" ]);
 		});
 
