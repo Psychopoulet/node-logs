@@ -463,7 +463,12 @@ module.exports = function () {
 		value: function log(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg);
+
+				if ("string" === typeof msg && "" === msg.trim()) {
+					(1, console).log("");
+				} else {
+					(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg);
+				}
 			}
 
 			return _input(this._interfaces, msg, "log");
@@ -473,7 +478,12 @@ module.exports = function () {
 		value: function ok(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.green);
+
+				if ("string" === typeof msg && "" === msg.trim()) {
+					(1, console).log("");
+				} else {
+					(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.green);
+				}
 			}
 
 			return _input(this._interfaces, msg, "success");
@@ -488,7 +498,12 @@ module.exports = function () {
 		value: function warn(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.yellow);
+
+				if ("string" === typeof msg && "" === msg.trim()) {
+					(1, console).log("");
+				} else {
+					(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.yellow);
+				}
 			}
 
 			return _input(this._interfaces, msg, "warning");
@@ -503,7 +518,12 @@ module.exports = function () {
 		value: function err(msg) {
 
 			if (this._showInConsole) {
-				(1, console).error(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.red);
+
+				if ("string" === typeof msg && "" === msg.trim()) {
+					(1, console).log("");
+				} else {
+					(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.red);
+				}
 			}
 
 			return _input(this._interfaces, msg, "error");
@@ -518,7 +538,12 @@ module.exports = function () {
 		value: function info(msg) {
 
 			if (this._showInConsole) {
-				(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.cyan);
+
+				if ("string" === typeof msg && "" === msg.trim()) {
+					(1, console).log("");
+				} else {
+					(1, console).log(_formatedDate(new Date()) + " " + _formatedTime(new Date()), msg.cyan);
+				}
 			}
 
 			return _input(this._interfaces, msg, "info");
