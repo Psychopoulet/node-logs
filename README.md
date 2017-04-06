@@ -144,11 +144,9 @@ return logs.init().then(() => {
   // read
 
   logs.getLogs().then((logs) => {
-     return logs.read(year, month, day, 1);
-  }).then((content) => {
-     return logs.removeDay(year, month, day);
-  }).then(() => {
-     console.log('removed');
+     return logs.readLog(year, month, day);
+  }).then((logs) => {
+     console.log(logs);
   }).catch((err) => {
      console.log(err);
   });
