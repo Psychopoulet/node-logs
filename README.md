@@ -56,7 +56,7 @@ $ npm install node-logs
 
   * -- Read logs --
   * ``` getLogs() : Promise ``` then((Array logs) => { logs.forEach((log) => { console.log(log.year, log.month, log.day); }); })
-  * ``` readLog (string year (f=yyyy), string month (f=mm), string day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
+  * ``` readLog (string|number year (f=yyyy), string|number month (f=mm), string|number day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
 
 ## Examples
 
