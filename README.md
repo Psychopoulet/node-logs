@@ -1,6 +1,9 @@
 # node-logs
 A class to manage logs
 
+[![Build Status](https://api.travis-ci.org/Psychopoulet/node-logs.svg?branch=master)](https://travis-ci.org/Psychopoulet/node-logs)
+[![Coverage Status](https://coveralls.io/repos/github/Psychopoulet/node-logs/badge.svg?branch=master)](https://coveralls.io/github/Psychopoulet/node-logs)
+[![Dependency Status](https://img.shields.io/david/Psychopoulet/node-logs/master.svg)](https://github.com/Psychopoulet/node-logs)
 
 ## Installation
 
@@ -53,7 +56,7 @@ $ npm install node-logs
 
   * -- Read logs --
   * ``` getLogs() : Promise ``` then((Array logs) => { logs.forEach((log) => { console.log(log.year, log.month, log.day); }); })
-  * ``` readLog (string year (f=yyyy), string month (f=mm), string day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
+  * ``` readLog (string|number year (f=yyyy), string|number month (f=mm), string|number day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
 
 ## Examples
 
