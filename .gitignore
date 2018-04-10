@@ -1,3 +1,5 @@
 *.db
 *.db-journal
+coverage/
 node_modules/
+package-lock.json
