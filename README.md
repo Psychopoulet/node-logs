@@ -13,92 +13,113 @@ $ npm install node-logs
 
 ## Features
 
+  * Easily manage your logs in the way you want
   * Show logs in the command prompt
   * Save logs in sqlite formate, order by date (different files) & time
   * Add interfaces to use new specific way to log data (api, json, etc...)
-  * Delete old x days logs
-  * Read logs
+  * Delete old x days local logs automaticly
+  * Read local logs
 
 ## Doc
 
-  -- Attributes --
+-- Interfaces --
 
-  * ``` integer _deleteLogsAfterXDays ``` limit old logs
-  * ``` string _localStorageDatabase ``` where the local logs are stored (path)
-  * ``` sqlite3 _localStorageObject ``` where the local logs are stored (sqlite3 object)
-  * ``` boolean _showInConsole ``` disable logs in command prompt (prod ?)
-  * ``` Array _interfaces ``` disable logs in files (debug ?)
+```typescript
+interface LogDate {
+  year: string,
+  month: string,
+  day: string
+}
 
-  -- Constructor --
+interface Log {
+  date: string,
+  time: string,
+  type: string,
+  message: string
+}
+```
 
-  * ``` constructor () ```
+-- Constructor --
 
-  -- Methods --
+* ``` constructor () ```
 
-  * -- Accessors --
-  * ``` deleteLogsAfterXDays (integer deleteLogsAfterXDays) : this ```
-  * ``` localStorageDatabase (string localStorageDatabase) : this ```
-  * ``` showInConsole (boolean showInConsole) : this ```
+-- Methods --
 
-  * -- Init / Release --
-  * ``` init () : Promise ``` create local storage if not exists and delete old logs
-  * ``` release () : Promise ```
+* -- Accessors --
+* ``` deleteLogsAfterXDays (deleteLogsAfterXDays: number): this ```
+* ``` localStorageDatabase (localStorageDatabase: string): this ```
+* ``` showInConsole (showInConsole: boolean): this ```
 
-  * -- Interfaces --
-  * ``` addInterface () : Promise // add your own way to log data ```
+* -- Init / Release --
+* ``` init(): Promise< resolve<void> | reject<Error> > ``` create local storage if not exists and delete old logs
+* ``` release(): Promise< resolve<void> | reject<Error> > ```
 
-  * -- Write logs --
-  * ``` log (string text) : Promise ```
-  * ``` success (string text) : Promise ``` alias : "ok"
-  * ``` warning (string text) : Promise ``` alias : "warn"
-  * ``` error (string text) : Promise ```   alias : "err"
-  * ``` info (string text) : Promise ```
+* -- Interfaces --
+* ``` addInterface(): Promise< resolve<void> | reject< ReferenceError|TypeError|Error > > // add your own way to log data ```
 
-  * -- Read logs --
-  * ``` getLogs() : Promise ``` then((Array logs) => { logs.forEach((log) => { console.log(log.year, log.month, log.day); }); })
-  * ``` readLog (string|number year (f=yyyy), string|number month (f=mm), string|number day (f=dd)) : Promise ``` then((logs) => { logs.forEach((log) => { console.log(log.date, log.time, log.type, log.message); }); })
+* -- Write logs --
+* ``` log(text: any) : Promise< resolve<void> | reject<Error> > ```
+* ``` success(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "ok"
+* ``` warning(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "warn"
+* ``` error(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "err"
+* ``` info(text: any): Promise< resolve<void> | reject<Error> > ```
+
+* -- Read logs --
+* ``` getLogs(): Promise< resolve< Array<LogDate> > | reject<Error> > ```
+* ``` readLog(year: string|number, month: string|number, day: string|number): Promise< resolve< Array<Log> > | reject< ReferenceError|TypeError|Error > > ```
 
 ## Examples
 
-```js
-const Logs = new (require('node-logs'))();
+### Native
+
+```javascript
+const Logs = require("node-logs");
 const logs = new Logs();
 ```
 
-```js
+```javascript
 // optionnal : configure the logger
 logs
   .deleteLogsAfterXDays(2)
-  .localStorageDatabase(require('path').join(__dirname, 'logs.db'))
+  .localStorageDatabase(require("path").join(__dirname, "logs.db"))
   .showInConsole(false);
 ```
 
-```js
+```javascript
 // example: link the logger to a Web API
-const http = require('http');
+const { request } = require("http");
 
 function _myOwnLogger(type, msg) {
 
-  http.request({
-    host: 'www.myownloger.com',
-    method: 'PUT',
-    path: '/api/' + type + '/',
-    data: {
-      message: msg
-    }
-  }, (err) => {
-    if (err) { console.log(err); }
-  }).end();
+  const req = request({
+    "host": "www.myownloger.com",
+    "method": "PUT",
+    "path": "/api/" + type + "/"
+  }, (res) => {
+
+    res.setEncoding("utf8");
+
+    let data = "";
+    res.on("data", (chunk) => {
+      data += chunk;
+    }).on("end", () => {
+      console.log(data);
+    });
+
+  });
+
+  req.write(String(msg));
+  req.end();
 
 }
 
 logs.addInterface({
 
-  log : (msg) => { _myOwnLogger('log', msg); },
-  success : (msg) => { _myOwnLogger('success', msg); },
-  info : (msg) => { _myOwnLogger('info', msg); },
-  warning : (msg) => { _myOwnLogger('warning', msg); },
-  error : (msg) => { _myOwnLogger('error', msg); }
+  "log" : (msg) => { _myOwnLogger("log", msg); },
+  "success" : (msg) => { _myOwnLogger("success", msg); },
+  "info" : (msg) => { _myOwnLogger("info", msg); },
+  "warning" : (msg) => { _myOwnLogger("warning", msg); },
+  "error" : (msg) => { _myOwnLogger("error", msg); }
 
 }).then(() => {
   console.log("MyOwnLoger added !");
@@ -107,39 +128,39 @@ logs.addInterface({
 });
 ```
 
-```js
+```javascript
 return logs.init().then(() => {
 
   // you can use the logger in a classical way
 
-  logs.log('log');
-  logs.success('success'); logs.ok('ok');
-  logs.info('info');
-  logs.warning('warning'); logs.warn('warn');
-  logs.error('error'); logs.err('err');
+  logs.log("log");
+  logs.success("success"); logs.ok("ok");
+  logs.info("info");
+  logs.warning("warning"); logs.warn("warn");
+  logs.error("error"); logs.err("err");
 
   // or with promises if you added an asynchronous interface
 
-  logs.log('log').then(() => {
+  logs.log("log").then(() => {
 
-     return logs.ok('ok').then(() => {
-        return logs.success('success');
+     return logs.ok("ok").then(() => {
+        return logs.success("success");
      });
 
   }).then(() => {
 
-     return logs.warn('warn').then(() => {
-        return logs.warning('warning');
+     return logs.warn("warn").then(() => {
+        return logs.warning("warning");
      });
 
   }).then(() => {
 
-     return logs.err('err').then(() => {
-        return logs.error('error');
+     return logs.err("err").then(() => {
+        return logs.error("error");
      });
 
   }).then(() => {
-     return logs.info('info');
+     return logs.info("info");
   }).catch((err) => {
      console.log(err);
   });
@@ -160,6 +181,17 @@ return logs.init().then(() => {
      console.log(err);
   });
 
+});
+```
+
+### Typescript
+
+```typescript
+import Logs = require("node-logs");
+const logs = new Logs();
+
+logs.init().then(() => {
+   return logs.log("log");
 });
 ```
 
