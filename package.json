@@ -1,6 +1,6 @@
 {
   "name": "node-logs",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A class to manage basic logs",
   "main": "lib/main.js",
   "typings": "lib/index.d.ts",
@@ -29,7 +29,7 @@
     "url": "https://github.com/Psychopoulet/node-logs/issues"
   },
   "dependencies": {
-    "colors": "1.2.1",
+    "colors": "1.2.3",
     "sqlite3": "4.0.0"
   },
   "devDependencies": {
