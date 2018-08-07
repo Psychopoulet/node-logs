@@ -2,7 +2,7 @@
 
 // deps
 
-	const assert = require("assert");
+	const { strictEqual } = require("assert");
 
 	const createFile = require(require("path").join(__dirname, "..", "lib", "createFile.js"));
 
@@ -14,8 +14,8 @@ describe("createFile", () => {
 			done(new Error("Does not generate an error"));
 		}).catch((err) => {
 
-			assert.strictEqual(typeof err, "object", "error generated is not valid");
-			assert.strictEqual(err instanceof ReferenceError, true, "error generated is not valid");
+			strictEqual(typeof err, "object", "error generated is not valid");
+			strictEqual(err instanceof ReferenceError, true, "error generated is not valid");
 
 			done();
 
@@ -29,8 +29,8 @@ describe("createFile", () => {
 			done(new Error("Does not generate an error"));
 		}).catch((err) => {
 
-			assert.strictEqual(typeof err, "object", "error generated is not valid");
-			assert.strictEqual(err instanceof TypeError, true, "error generated is not valid");
+			strictEqual(typeof err, "object", "error generated is not valid");
+			strictEqual(err instanceof TypeError, true, "error generated is not valid");
 
 			done();
 
@@ -44,8 +44,8 @@ describe("createFile", () => {
 			done(new Error("Does not generate an error"));
 		}).catch((err) => {
 
-			assert.strictEqual(typeof err, "object", "error generated is not valid");
-			assert.strictEqual(err instanceof Error, true, "error generated is not valid");
+			strictEqual(typeof err, "object", "error generated is not valid");
+			strictEqual(err instanceof Error, true, "error generated is not valid");
 
 			done();
 

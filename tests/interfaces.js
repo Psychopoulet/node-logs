@@ -3,6 +3,7 @@
 // deps
 
 	const { join } = require("path");
+	const { strictEqual } = require("assert");
 
 	const emptyHandler = require(join(__dirname, "emptyHandler.js"));
 
@@ -220,22 +221,64 @@ describe("interfaces", () => {
 
 			return logs.addInterface({
 				"log": (msg) => {
-					(0, console).log(msg);
+					(0, console).log(msg); return Promise.resolve();
 				},
 				"success": () => {
 					return true;
 				},
-				"information": emptyHandler,
-				"warning": emptyHandler,
-				"error": emptyHandler
-			}).then(() => {
-				return logs.log("test");
+				"information": () => {
+					return null;
+				},
+				"warning": () => {
+					return false;
+				},
+				"error": () => {
+					return Promise.reject(new Error("test"));
+				}
 			});
 
 		});
 
-		it("should test interface wright", () => {
+		it("should test return valid Promise", () => {
+			return logs.log("test");
+		});
+
+		it("should test return true", () => {
 			return logs.success("test");
+		});
+
+		it("should test return null", () => {
+			return logs.information("test");
+		});
+
+		it("should test return false", (done) => {
+
+			logs.warning("test").then(() => {
+				done(new Error("No error generated"));
+			}).catch((err) => {
+
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof Error, true, "returned value is not a valid error");
+
+				done();
+
+			});
+
+		});
+
+		it("should test return bad Promise", (done) => {
+
+			logs.error("test").then(() => {
+				done(new Error("No error generated"));
+			}).catch((err) => {
+
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof Error, true, "returned value is not a valid error");
+
+				done();
+
+			});
+
 		});
 
 	});

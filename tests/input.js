@@ -2,7 +2,7 @@
 
 // deps
 
-	const assert = require("assert");
+	const { strictEqual } = require("assert");
 
 	const input = require(require("path").join(__dirname, "..", "lib", "input.js"));
 
@@ -16,8 +16,8 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
 
 				done();
 
@@ -31,8 +31,8 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
 
 				done();
 
@@ -54,8 +54,8 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
 
 				done();
 
@@ -69,8 +69,8 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
 
 				done();
 
@@ -88,8 +88,8 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
 
 				done();
 
@@ -103,8 +103,8 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
 
 				done();
 
@@ -118,49 +118,12 @@ describe("input", () => {
 				done(new Error("No error generated"));
 			}).catch((err) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+				strictEqual(typeof err, "object", "returned value is not a valid error");
+				strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
 
 				done();
 
 			});
-
-		});
-
-	});
-
-	describe("interfaces", () => {
-
-		it("should test return false", (done) => {
-
-			input([
-				{
-					"information": () => {
-						return false;
-					}
-				}
-			], "test", "information").then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
-
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof Error, true, "returned value is not a valid error");
-
-				done();
-
-			});
-
-		});
-
-		it("should test return null", () => {
-
-			return input([
-				{
-					"information": () => {
-						return null;
-					}
-				}
-			], "test", "information");
 
 		});
 
