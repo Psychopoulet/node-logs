@@ -5,6 +5,8 @@ declare module "node-logs" {
 
 	import { Database } from "sqlite3";
 
+	type iOption = "background" | "bold" | "italic" | "underline";
+
 	interface iInterface {
 		log: Function;
 		success: Function;
@@ -26,13 +28,6 @@ declare module "node-logs" {
 		message: string;
 	}
 
-	interface iOptions {
-		backgroud?: boolean;
-		bold?: boolean;
-		italic?: boolean;
-		underline?: boolean;
-	}
-
 	class Logs {
 
 		protected _showInConsole: boolean;
@@ -47,15 +42,15 @@ declare module "node-logs" {
 		public localStorageDatabase(database: string): Logs;
 		public showInConsole(show: boolean): Logs;
 
-		public log(text: any, option?: iOptions): Promise<void>;
-		public success(text: any, option?: iOptions): Promise<void>;
-			public ok(text: any, option?: iOptions): Promise<void>;
-		public warning(text: any, option?: iOptions): Promise<void>;
-			public warn(text: any, option?: iOptions): Promise<void>;
-		public error(text: any, option?: iOptions): Promise<void>;
-			public err(text: any, option?: iOptions): Promise<void>;
-		public information(text: any, option?: iOptions): Promise<void>;
-			public info(text: any, option?: iOptions): Promise<void>;
+		public log(text: any, option?: Array<iOption>): Promise<void>;
+		public success(text: any, option?: Array<iOption>): Promise<void>;
+			public ok(text: any, option?: Array<iOption>): Promise<void>;
+		public warning(text: any, option?: Array<iOption>): Promise<void>;
+			public warn(text: any, option?: Array<iOption>): Promise<void>;
+		public error(text: any, option?: Array<iOption>): Promise<void>;
+			public err(text: any, option?: Array<iOption>): Promise<void>;
+		public information(text: any, option?: Array<iOption>): Promise<void>;
+			public info(text: any, option?: Array<iOption>): Promise<void>;
 
 		public init(): Promise<void>;
 		public addInterface(iInterface): Promise<void>;

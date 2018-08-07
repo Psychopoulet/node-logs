@@ -26,6 +26,8 @@ $ npm install node-logs
 -- Interfaces --
 
 ```typescript
+type iOption = "background" | "bold" | "italic" | "underline";
+
 interface iLogDate {
   year: string,
   month: string,
@@ -59,11 +61,11 @@ interface iLog {
 * ``` addInterface(): Promise< resolve<void> | reject< ReferenceError|TypeError|Error > > // add your own way to log data ```
 
 * -- Write logs --
-* ``` log(text: any) : Promise< resolve<void> | reject<Error> > ```
-* ``` success(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "ok"
-* ``` warning(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "warn"
-* ``` error(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "err"
-* ``` information(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "info"
+* ``` log(text: any, option?: Array<iOption>) : Promise< resolve<void> | reject<Error> > ```
+* ``` success(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "ok"
+* ``` warning(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "warn"
+* ``` error(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "err"
+* ``` information(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "info"
 
 * -- Read logs --
 * ``` getLogs(): Promise< resolve< Array<iLogDate> > | reject<Error> > ```

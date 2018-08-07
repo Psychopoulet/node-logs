@@ -215,67 +215,181 @@ describe("interfaces", () => {
 
 	});
 
-	describe("right", () => {
+	describe("wrong options", () => {
 
-		it("should test interface", () => {
+		it("should test wrong type options", () => {
 
 			return logs.addInterface({
-				"log": (msg) => {
-					(0, console).log(msg); return Promise.resolve();
-				},
-				"success": () => {
-					return true;
-				},
-				"information": () => {
-					return null;
-				},
-				"warning": () => {
-					return false;
-				},
-				"error": () => {
-					return Promise.reject(new Error("test"));
-				}
+				"log": emptyHandler,
+				"success": emptyHandler,
+				"information": emptyHandler,
+				"warning": emptyHandler,
+				"error": emptyHandler
+			}).then(() => {
+
+				return new Promise((resolve, reject) => {
+
+					logs.log("test", false).then(() => {
+						reject(new Error("No error generated"));
+					}).catch((err) => {
+
+						strictEqual(typeof err, "object", "returned value is not a valid error");
+						strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+
+						resolve();
+
+					});
+
+				});
+
 			});
 
 		});
 
-		it("should test return valid Promise", () => {
-			return logs.log("test");
+		it("should test unknown type options", () => {
+
+			return logs.addInterface({
+				"log": (msg, options) => {
+
+					return Promise.resolve().then(() => {
+
+						strictEqual(typeof msg, "string", "message sended is not a string");
+						strictEqual(msg, "test", "message sended is not as expected");
+
+						strictEqual(typeof options, "object", "options sended is not an object");
+						strictEqual(options instanceof Array, true, "options sended is not an Array");
+						strictEqual(options.length, 0, "options sended is not as expected");
+
+						return Promise.resolve();
+
+					});
+
+				},
+				"success": emptyHandler,
+				"information": emptyHandler,
+				"warning": emptyHandler,
+				"error": emptyHandler
+			}).then(() => {
+				return logs.log("test", [ "test" ]);
+			});
+
 		});
 
-		it("should test return true", () => {
-			return logs.success("test");
+	});
+
+	describe("right", () => {
+
+		beforeEach(() => {
+			return logs.init();
+		});
+
+		afterEach(() => {
+			return logs.release();
+		});
+
+		it("should add valid interface", () => {
+
+			return logs.addInterface({
+				"log": emptyHandler,
+				"success": emptyHandler,
+				"information": emptyHandler,
+				"warning": emptyHandler,
+				"error": emptyHandler
+			}).then(() => {
+				return logs.log("test");
+			}).then(() => {
+				return logs.success("test");
+			}).then(() => {
+				return logs.information("test");
+			}).then(() => {
+				return logs.warning("test");
+			}).then(() => {
+				return logs.error("test");
+			});
+
 		});
 
 		it("should test return null", () => {
-			return logs.information("test");
+
+			return logs.addInterface({
+				"log": () => {
+					return null;
+				},
+				"success": emptyHandler,
+				"information": emptyHandler,
+				"warning": emptyHandler,
+				"error": emptyHandler
+			}).then(() => {
+				return logs.log("test");
+			});
+
 		});
 
-		it("should test return false", (done) => {
+		it("should test interface with boolean return", () => {
 
-			logs.warning("test").then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return logs.addInterface({
+				"log": emptyHandler,
+				"success": () => {
+					return true;
+				},
+				"information": emptyHandler,
+				"warning": emptyHandler,
+				"error": () => {
+					return false;
+				}
+			}).then(() => {
+				return logs.success("test");
+			}).then(() => {
 
-				strictEqual(typeof err, "object", "returned value is not a valid error");
-				strictEqual(err instanceof Error, true, "returned value is not a valid error");
+				return new Promise((resolve, reject) => {
 
-				done();
+					logs.error("test").then(() => {
+						reject(new Error("No error generated"));
+					}).catch((err) => {
+
+						strictEqual(typeof err, "object", "returned value is not a valid error");
+						strictEqual(err instanceof Error, true, "returned value is not a valid error");
+
+						resolve();
+
+					});
+
+				});
 
 			});
 
 		});
 
-		it("should test return bad Promise", (done) => {
+		it("should test interface with Promise return", () => {
 
-			logs.error("test").then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return logs.addInterface({
+				"log": emptyHandler,
+				"success": () => {
+					return Promise.resolve();
+				},
+				"information": emptyHandler,
+				"warning": emptyHandler,
+				"error": () => {
+					return Promise.reject(new Error("test"));
+				}
+			}).then(() => {
+				return logs.success("test");
+			}).then(() => {
 
-				strictEqual(typeof err, "object", "returned value is not a valid error");
-				strictEqual(err instanceof Error, true, "returned value is not a valid error");
+				return new Promise((resolve, reject) => {
 
-				done();
+					logs.error("test").then(() => {
+						reject(new Error("No error generated"));
+					}).catch((err) => {
+
+						strictEqual(typeof err, "object", "returned value is not a valid error");
+						strictEqual(err instanceof Error, true, "returned value is not a valid error");
+
+						resolve();
+
+					});
+
+				});
 
 			});
 
