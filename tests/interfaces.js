@@ -16,7 +16,7 @@
 describe("interfaces", () => {
 
 	beforeEach(() => {
-		return logs.init();
+		return logs.showInConsole(false).init();
 	});
 
 	afterEach(() => {

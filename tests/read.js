@@ -25,7 +25,7 @@ describe("read", () => {
 			logs
 				.localStorageDatabase(LOCAL_STORAGE)
 				.deleteLogsAfterXDays(600)
-				.showInConsole(true);
+				.showInConsole(false);
 
 			return Promise.resolve();
 

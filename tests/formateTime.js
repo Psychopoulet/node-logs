@@ -12,22 +12,6 @@
 
 describe("formateTime", () => {
 
-	it("should check missing value", () => {
-
-		assert.throws(() => {
-			formateTime();
-		}, ReferenceError, "Does not generate an error");
-
-	});
-
-	it("should check wrong value", () => {
-
-		assert.throws(() => {
-			formateTime(false);
-		}, TypeError, "Does not generate an error");
-
-	});
-
 	it("should check basic value", () => {
 
 		assert.doesNotThrow(() => {
