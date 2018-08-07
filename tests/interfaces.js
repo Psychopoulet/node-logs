@@ -103,16 +103,16 @@ describe("interfaces", () => {
 
 	});
 
-	describe("info", () => {
+	describe("information", () => {
 
-		it("should add interface without \"info\"", () => {
+		it("should add interface without \"information\"", () => {
 
 			return logs.addInterface({
 				"log": emptyHandler,
 				"success": emptyHandler
 			}).catch((err) => {
 
-				return err instanceof ReferenceError && "Missing \"logInterface.info\" data" === err.message ?
+				return err instanceof ReferenceError && "Missing \"logInterface.information\" data" === err.message ?
 					Promise.resolve() :
 					Promise.reject(err);
 
@@ -120,15 +120,15 @@ describe("interfaces", () => {
 
 		});
 
-		it("should add interface with wrong \"info\"", () => {
+		it("should add interface with wrong \"information\"", () => {
 
 			return logs.addInterface({
 				"log": emptyHandler,
 				"success": emptyHandler,
-				"info": false
+				"information": false
 			}).catch((err) => {
 
-				return err instanceof TypeError && "\"logInterface.info\" data is not a function" === err.message ?
+				return err instanceof TypeError && "\"logInterface.information\" data is not a function" === err.message ?
 					Promise.resolve() :
 					Promise.reject(err);
 
@@ -145,7 +145,7 @@ describe("interfaces", () => {
 			return logs.addInterface({
 				"log": emptyHandler,
 				"success": emptyHandler,
-				"info": emptyHandler
+				"information": emptyHandler
 			}).catch((err) => {
 
 				return err instanceof ReferenceError && "Missing \"logInterface.warning\" data" === err.message ?
@@ -161,7 +161,7 @@ describe("interfaces", () => {
 			return logs.addInterface({
 				"log": emptyHandler,
 				"success": emptyHandler,
-				"info": emptyHandler,
+				"information": emptyHandler,
 				"warning": false
 			}).catch((err) => {
 
@@ -182,7 +182,7 @@ describe("interfaces", () => {
 			return logs.addInterface({
 				"log": emptyHandler,
 				"success": emptyHandler,
-				"info": emptyHandler,
+				"information": emptyHandler,
 				"warning": emptyHandler
 			}).catch((err) => {
 
@@ -199,7 +199,7 @@ describe("interfaces", () => {
 			return logs.addInterface({
 				"log": emptyHandler,
 				"success": emptyHandler,
-				"info": emptyHandler,
+				"information": emptyHandler,
 				"warning": emptyHandler,
 				"error": false
 			}).catch((err) => {
@@ -225,7 +225,7 @@ describe("interfaces", () => {
 				"success": () => {
 					return true;
 				},
-				"info": emptyHandler,
+				"information": emptyHandler,
 				"warning": emptyHandler,
 				"error": emptyHandler
 			}).then(() => {

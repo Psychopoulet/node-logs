@@ -54,6 +54,14 @@ describe("write", () => {
 
 	});
 
+	it("should test information function", () => {
+
+		return logs.information("information").then(() => {
+			return logs.information("");
+		});
+
+	});
+
 	it("should test info function", () => {
 
 		return logs.info("info").then(() => {

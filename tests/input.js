@@ -119,11 +119,48 @@ describe("input", () => {
 			}).catch((err) => {
 
 				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
+				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+
+				done();
+
+			});
+
+		});
+
+	});
+
+	describe("interfaces", () => {
+
+		it("should test return false", (done) => {
+
+			input([
+				{
+					"information": () => {
+						return false;
+					}
+				}
+			], "test", "information").then(() => {
+				done(new Error("No error generated"));
+			}).catch((err) => {
+
+				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
 				assert.strictEqual(err instanceof Error, true, "returned value is not a valid error");
 
 				done();
 
 			});
+
+		});
+
+		it("should test return null", () => {
+
+			return input([
+				{
+					"information": () => {
+						return null;
+					}
+				}
+			], "test", "information");
 
 		});
 

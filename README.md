@@ -26,13 +26,13 @@ $ npm install node-logs
 -- Interfaces --
 
 ```typescript
-interface LogDate {
+interface iLogDate {
   year: string,
   month: string,
   day: string
 }
 
-interface Log {
+interface iLog {
   date: string,
   time: string,
   type: string,
@@ -63,11 +63,11 @@ interface Log {
 * ``` success(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "ok"
 * ``` warning(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "warn"
 * ``` error(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "err"
-* ``` info(text: any): Promise< resolve<void> | reject<Error> > ```
+* ``` information(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "info"
 
 * -- Read logs --
-* ``` getLogs(): Promise< resolve< Array<LogDate> > | reject<Error> > ```
-* ``` readLog(year: string|number, month: string|number, day: string|number): Promise< resolve< Array<Log> > | reject< ReferenceError|TypeError|Error > > ```
+* ``` getLogs(): Promise< resolve< Array<iLogDate> > | reject<Error> > ```
+* ``` readLog(year: string|number, month: string|number, day: string|number): Promise< resolve< Array<iLog> > | reject< ReferenceError|TypeError|Error > > ```
 
 ## Examples
 
