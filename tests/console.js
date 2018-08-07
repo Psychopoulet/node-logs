@@ -11,37 +11,51 @@ describe("_console", () => {
 	});
 
 	it("should check empty message", () => {
-		return _console(true, "log", "");
+		return _console(true, "");
 	});
 
 	it("should check different types", () => {
 
-		return _console(true, "log", "test").then(() => {
-			return _console(true, "information", "test");
+		return _console(true, "test", []).then(() => {
+			return _console(true, "log", [ "log" ]);
 		}).then(() => {
-			return _console(true, "success", "test");
+			return _console(true, "information", [ "information" ]);
 		}).then(() => {
-			return _console(true, "warning", "test");
+			return _console(true, "success", [ "success" ]);
 		}).then(() => {
-			return _console(true, "error", "test");
+			return _console(true, "warning", [ "warning" ]);
+		}).then(() => {
+			return _console(true, "error", [ "error" ]);
 		});
 
 	});
 
-	it("should check background options", () => {
-		return _console(true, "log", "test", [ "background" ]);
+	it("should check different options", () => {
+
+		return _console(true, "background", [ "log", "background" ]).then(() => {
+			return _console(true, "bold", [ "log", "bold" ]);
+		}).then(() => {
+			return _console(true, "italic", [ "log", "italic" ]);
+		}).then(() => {
+			return _console(true, "strikethrough", [ "log", "strikethrough" ]);
+		}).then(() => {
+			return _console(true, "underline", [ "log", "underline" ]);
+		});
+
 	});
 
-	it("should check bold options", () => {
-		return _console(true, "log", "test", [ "bold" ]);
-	});
+	it("should check different types with background", () => {
 
-	it("should check italic options", () => {
-		return _console(true, "log", "test", [ "italic" ]);
-	});
+		return _console(true, "log", [ "log", "background" ]).then(() => {
+			return _console(true, "information", [ "information", "background" ]);
+		}).then(() => {
+			return _console(true, "success", [ "success", "background" ]);
+		}).then(() => {
+			return _console(true, "warning", [ "warning", "background" ]);
+		}).then(() => {
+			return _console(true, "error", [ "error", "background" ]);
+		});
 
-	it("should check underline options", () => {
-		return _console(true, "log", "test", [ "underline" ]);
 	});
 
 });
