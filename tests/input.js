@@ -2,7 +2,7 @@
 
 // deps
 
-	const assert = require("assert");
+	const { strictEqual } = require("assert");
 
 	const input = require(require("path").join(__dirname, "..", "lib", "input.js"));
 
@@ -10,69 +10,81 @@ describe("input", () => {
 
 	describe("interfaces", () => {
 
-		it("should test missing interfaces", (done) => {
+		it("should test missing interfaces", () => {
 
-			input().then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return new Promise((resolve, reject) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+				input().then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
 
-				done();
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
 
-			});
+					resolve();
 
-		});
-
-		it("should test wrong interfaces", (done) => {
-
-			input(false).then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
-
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
-
-				done();
+				});
 
 			});
 
 		});
 
-		it("should test empty interfaces", () => {
-			return input([]);
+		it("should test wrong interfaces", () => {
+
+			return new Promise((resolve, reject) => {
+
+				input(false).then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
+
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+
+					resolve();
+
+				});
+
+			});
+
 		});
 
 	});
 
 	describe("message", () => {
 
-		it("should test missing message", (done) => {
+		it("should test missing message", () => {
 
-			input([ "test" ]).then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return new Promise((resolve, reject) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+				input([ "test" ]).then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
 
-				done();
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+
+					resolve();
+
+				});
 
 			});
 
 		});
 
-		it("should test wrong message", (done) => {
+		it("should test wrong message", () => {
 
-			input([ "test" ], false).then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return new Promise((resolve, reject) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+				input([ "test" ], false).then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
 
-				done();
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+
+					resolve();
+
+				});
 
 			});
 
@@ -82,46 +94,58 @@ describe("input", () => {
 
 	describe("type", () => {
 
-		it("should test missing type", (done) => {
+		it("should test missing type", () => {
 
-			input([ "test" ], "test").then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return new Promise((resolve, reject) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
+				input([ "test" ], "test").then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
 
-				done();
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof ReferenceError, true, "returned value is not a valid error");
 
-			});
+					resolve();
 
-		});
-
-		it("should test wrong type", (done) => {
-
-			input([ "test" ], "test", false).then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
-
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
-
-				done();
+				});
 
 			});
 
 		});
 
-		it("should test wrong type", (done) => {
+		it("should test wrong type", () => {
 
-			input([ "test" ], "test", "test").then(() => {
-				done(new Error("No error generated"));
-			}).catch((err) => {
+			return new Promise((resolve, reject) => {
 
-				assert.strictEqual(typeof err, "object", "returned value is not a valid error");
-				assert.strictEqual(err instanceof Error, true, "returned value is not a valid error");
+				input([ "test" ], "test", false).then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
 
-				done();
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+
+					resolve();
+
+				});
+
+			});
+
+		});
+
+		it("should test wrong type", () => {
+
+			return new Promise((resolve, reject) => {
+
+				input([ "test" ], "test", "test").then(() => {
+					reject(new Error("No error generated"));
+				}).catch((err) => {
+
+					strictEqual(typeof err, "object", "returned value is not a valid error");
+					strictEqual(err instanceof TypeError, true, "returned value is not a valid error");
+
+					resolve();
+
+				});
 
 			});
 

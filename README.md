@@ -6,6 +6,8 @@ A class to manage logs
 [![Dependency Status](https://david-dm.org/Psychopoulet/node-logs/status.svg)](https://david-dm.org/Psychopoulet/node-logs)
 [![Dev dependency Status](https://david-dm.org/Psychopoulet/node-logs/dev-status.svg)](https://david-dm.org/Psychopoulet/node-logs?type=dev)
 
+> Be careful !!! With this version, the plugin became absolutly agnostic and does not support sqlite anymore. Please refer to [node-logs-sqlite](https://github.com/Psychopoulet/node-logs-sqlite) for that.
+
 ## Installation
 
 ```bash
@@ -16,27 +18,21 @@ $ npm install node-logs
 
   * Easily manage your logs in the way you want
   * Show logs in the command prompt
-  * Save logs in sqlite formate, order by date (different files) & time
   * Add interfaces to use new specific way to log data (api, json, etc...)
-  * Delete old x days local logs automaticly
-  * Read local logs
 
 ## Doc
 
 -- Interfaces --
 
 ```typescript
-interface LogDate {
-  year: string,
-  month: string,
-  day: string
-}
+type iOption = "background" | "bold" | "italic" | "strikethrough" | "underline";
 
-interface Log {
-  date: string,
-  time: string,
-  type: string,
-  message: string
+interface iInterface {
+  log: Function;
+  success: Function;
+  information: Function;
+  warning: Function;
+  error: Function;
 }
 ```
 
@@ -47,27 +43,21 @@ interface Log {
 -- Methods --
 
 * -- Accessors --
-* ``` deleteLogsAfterXDays (deleteLogsAfterXDays: number): this ```
-* ``` localStorageDatabase (localStorageDatabase: string): this ```
-* ``` showInConsole (showInConsole: boolean): this ```
+* ``` showInConsole (showInConsole: boolean): this ``` default false
 
 * -- Init / Release --
-* ``` init(): Promise< resolve<void> | reject<Error> > ``` create local storage if not exists and delete old logs
+* ``` init(): Promise< resolve<void> | reject<Error> > ```
 * ``` release(): Promise< resolve<void> | reject<Error> > ```
 
 * -- Interfaces --
-* ``` addInterface(): Promise< resolve<void> | reject< ReferenceError|TypeError|Error > > // add your own way to log data ```
+* ``` addInterface(interface: iInterface): Promise< resolve<void> | reject< ReferenceError|TypeError|Error > > ``` add your own way to log data
 
 * -- Write logs --
-* ``` log(text: any) : Promise< resolve<void> | reject<Error> > ```
-* ``` success(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "ok"
-* ``` warning(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "warn"
-* ``` error(text: any): Promise< resolve<void> | reject<Error> > ``` alias : "err"
-* ``` info(text: any): Promise< resolve<void> | reject<Error> > ```
-
-* -- Read logs --
-* ``` getLogs(): Promise< resolve< Array<LogDate> > | reject<Error> > ```
-* ``` readLog(year: string|number, month: string|number, day: string|number): Promise< resolve< Array<Log> > | reject< ReferenceError|TypeError|Error > > ```
+* ``` log(text: any, option?: Array<iOption>) : Promise< resolve<void> | reject<Error> > ```
+* ``` success(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "ok"
+* ``` warning(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "warn"
+* ``` error(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "err"
+* ``` information(text: any, option?: Array<iOption>): Promise< resolve<void> | reject<Error> > ``` alias : "info"
 
 ## Examples
 
@@ -79,11 +69,7 @@ const logs = new Logs();
 ```
 
 ```javascript
-// optionnal : configure the logger
-logs
-  .deleteLogsAfterXDays(2)
-  .localStorageDatabase(require("path").join(__dirname, "logs.db"))
-  .showInConsole(false);
+logs.showInConsole(true);
 ```
 
 ```javascript
@@ -116,11 +102,11 @@ function _myOwnLogger(type, msg) {
 
 logs.addInterface({
 
-  "log" : (msg) => { _myOwnLogger("log", msg); },
-  "success" : (msg) => { _myOwnLogger("success", msg); },
-  "info" : (msg) => { _myOwnLogger("info", msg); },
-  "warning" : (msg) => { _myOwnLogger("warning", msg); },
-  "error" : (msg) => { _myOwnLogger("error", msg); }
+  "log" : (msg, options) => { _myOwnLogger("log", msg, options); },
+  "success" : (msg, options) => { _myOwnLogger("success", msg, options); },
+  "info" : (msg, options) => { _myOwnLogger("info", msg, options); },
+  "warning" : (msg, options) => { _myOwnLogger("warning", msg, options); },
+  "error" : (msg, options) => { _myOwnLogger("error", msg, options); }
 
 }).then(() => {
   console.log("MyOwnLoger added !");
@@ -166,15 +152,9 @@ return logs.init().then(() => {
      console.log(err);
   });
 
-  // read
+  // you can also add "iOption" style features
 
-  logs.getLogs().then((logs) => {
-     return logs.readLog(year, month, day);
-  }).then((logs) => {
-     console.log(logs);
-  }).catch((err) => {
-     console.log(err);
-  });
+  logs.log("log", [ "bold", "underline" ]);
 
   // release
 
