@@ -4,18 +4,18 @@
 
 	const assert = require("assert");
 
-	const formateDate = require(require("path").join(__dirname, "..", "lib", "formateDate.js"));
+	const formateDateTime = require(require("path").join(__dirname, "..", "lib", "formateDateTime.js"));
 
 // consts
 
 	const TESTED_DATE = new Date(1988, 3 - 1, 6, 16, 30, 15);
 
-describe("formateDate", () => {
+describe("formateDateTime", () => {
 
 	it("should check missing value", () => {
 
 		assert.throws(() => {
-			formateDate();
+			formateDateTime();
 		}, ReferenceError, "Does not generate an error");
 
 	});
@@ -23,7 +23,7 @@ describe("formateDate", () => {
 	it("should check wrong value", () => {
 
 		assert.throws(() => {
-			formateDate(false);
+			formateDateTime(false);
 		}, TypeError, "Does not generate an error");
 
 	});
@@ -31,26 +31,29 @@ describe("formateDate", () => {
 	it("should check basic value", () => {
 
 		assert.doesNotThrow(() => {
-			formateDate(TESTED_DATE);
+			formateDateTime(TESTED_DATE);
 		}, Error, "Generate an error");
 
-		const formatedDate = formateDate(TESTED_DATE);
+		const formatedDate = formateDateTime(TESTED_DATE);
 
 		assert.strictEqual(typeof formatedDate, "string", "data generated is not valid");
-		assert.strictEqual(formatedDate, "1988-03-06", "data generated is not valid");
+		assert.strictEqual(formatedDate, "1988-03-06 16:30:15", "data generated is not valid");
 
 	});
 
-	it("should check short day & month", () => {
+	it("should check short day & month && hour & minute & second", () => {
 
 		const date = new Date(TESTED_DATE);
 		date.setMonth(9 - 1);
 		date.setDate(9);
+		date.setHours(9);
+		date.setMinutes(5);
+		date.setSeconds(5);
 
-		const formatedDate = formateDate(date);
+		const formatedDate = formateDateTime(date);
 
 		assert.strictEqual(typeof formatedDate, "string", "data generated is not valid");
-		assert.strictEqual(formatedDate, "1988-09-09", "data generated is not valid");
+		assert.strictEqual(formatedDate, "1988-09-09 09:05:05", "data generated is not valid");
 
 	});
 
@@ -59,11 +62,14 @@ describe("formateDate", () => {
 		const date = new Date(TESTED_DATE);
 		date.setMonth(10 - 1);
 		date.setDate(10);
+		date.setHours(10);
+		date.setMinutes(10);
+		date.setSeconds(10);
 
-		const formatedDate = formateDate(date);
+		const formatedDate = formateDateTime(date);
 
 		assert.strictEqual(typeof formatedDate, "string", "data generated is not valid");
-		assert.strictEqual(formatedDate, "1988-10-10", "data generated is not valid");
+		assert.strictEqual(formatedDate, "1988-10-10 10:10:10", "data generated is not valid");
 
 	});
 

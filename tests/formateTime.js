@@ -28,11 +28,20 @@ describe("formateTime", () => {
 
 	});
 
-	it("should check short hour & minute & second", () => {
+	it("should check basic value", () => {
 
 		assert.doesNotThrow(() => {
 			formateTime(TESTED_DATE);
 		}, Error, "Generate an error");
+
+		const formatedDate = formateTime(TESTED_DATE);
+
+		assert.strictEqual(typeof formatedDate, "string", "data generated is not valid");
+		assert.strictEqual(formatedDate, "16:30:15", "data generated is not valid");
+
+	});
+
+	it("should check short hour & minute & second", () => {
 
 		const date = new Date(TESTED_DATE);
 		date.setHours(9);
