@@ -2,8 +2,6 @@
 
 declare module "node-logs" {
 
-	import { Database } from "sqlite3";
-
 	type iOption = "background" | "bold" | "italic" | "strikethrough" | "underline";
 
 	interface iInterface {
