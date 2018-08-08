@@ -104,7 +104,7 @@ logs.addInterface({
 
   "log" : (msg, options) => { _myOwnLogger("log", msg, options); },
   "success" : (msg, options) => { _myOwnLogger("success", msg, options); },
-  "info" : (msg, options) => { _myOwnLogger("info", msg, options); },
+  "information" : (msg, options) => { _myOwnLogger("information", msg, options); },
   "warning" : (msg, options) => { _myOwnLogger("warning", msg, options); },
   "error" : (msg, options) => { _myOwnLogger("error", msg, options); }
 
@@ -122,7 +122,7 @@ return logs.init().then(() => {
 
   logs.log("log");
   logs.success("success"); logs.ok("ok");
-  logs.info("info");
+  logs.information("information");
   logs.warning("warning"); logs.warn("warn");
   logs.error("error"); logs.err("err");
 
@@ -147,7 +147,7 @@ return logs.init().then(() => {
      });
 
   }).then(() => {
-     return logs.info("info");
+     return logs.information("information");
   }).catch((err) => {
      console.log(err);
   });
