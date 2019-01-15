@@ -2,7 +2,10 @@
 
 // deps
 
+	// locals
 	const _console = require(require("path").join(__dirname, "..", "lib", "console.js"));
+
+// tests
 
 describe("_console", () => {
 
