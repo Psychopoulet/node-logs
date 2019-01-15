@@ -2,13 +2,17 @@
 
 // deps
 
+	// natives
 	const assert = require("assert");
 
+	// locals
 	const formateDateTime = require(require("path").join(__dirname, "..", "lib", "formateDateTime.js"));
 
 // consts
 
 	const TESTED_DATE = new Date(1988, 3 - 1, 6, 16, 30, 15);
+
+// tests
 
 describe("formateDateTime", () => {
 

@@ -2,16 +2,19 @@
 
 // deps
 
+	// natives
 	const { join } = require("path");
 	const { strictEqual } = require("assert");
 
+	// locals
 	const emptyHandler = require(join(__dirname, "emptyHandler.js"));
-
 	const NodeLogs = require(join(__dirname, "..", "lib", "main.js"));
 
 // consts
 
 	const logs = new NodeLogs();
+
+// tests
 
 describe("interfaces", () => {
 

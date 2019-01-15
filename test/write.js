@@ -2,13 +2,17 @@
 
 // deps
 
+	// natives
 	const { join } = require("path");
 
+	// locals
 	const NodeLogs = require(join(__dirname, "..", "lib", "main.js"));
 
 // consts
 
 	const logs = new NodeLogs();
+
+// tests
 
 describe("write", () => {
 

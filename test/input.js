@@ -2,9 +2,13 @@
 
 // deps
 
+	// natives
 	const { strictEqual } = require("assert");
 
+	// locals
 	const input = require(require("path").join(__dirname, "..", "lib", "input.js"));
+
+// tests
 
 describe("input", () => {
 
