@@ -9,54 +9,66 @@
 
 describe("_console", () => {
 
-	it("should check no show in console", () => {
-		return _console(false);
-	});
-
 	it("should check empty message", () => {
-		return _console(true, "");
+		return _console("");
 	});
 
 	it("should check different types", () => {
 
-		return _console(true, "test", []).then(() => {
-			return _console(true, "log", [ "log" ]);
+		return _console("test", []).then(() => {
+			return _console("log", [ "log" ]);
 		}).then(() => {
-			return _console(true, "information", [ "information" ]);
+			return _console("information", [ "information" ]);
 		}).then(() => {
-			return _console(true, "success", [ "success" ]);
+			return _console("success", [ "success" ]);
 		}).then(() => {
-			return _console(true, "warning", [ "warning" ]);
+			return _console("warning", [ "warning" ]);
 		}).then(() => {
-			return _console(true, "error", [ "error" ]);
+			return _console("error", [ "error" ]);
+		});
+
+	});
+
+	it("should check dupplicates options types", () => {
+
+		return _console("test", []).then(() => {
+			return _console("log", [ "log", "log" ]);
+		}).then(() => {
+			return _console("information", [ "information", "information" ]);
+		}).then(() => {
+			return _console("success", [ "success", "success" ]);
+		}).then(() => {
+			return _console("warning", [ "warning", "warning" ]);
+		}).then(() => {
+			return _console("error", [ "error", "error" ]);
 		});
 
 	});
 
 	it("should check different options", () => {
 
-		return _console(true, "background", [ "log", "background" ]).then(() => {
-			return _console(true, "bold", [ "log", "bold" ]);
+		return _console("background", [ "log", "background" ]).then(() => {
+			return _console("bold", [ "log", "bold" ]);
 		}).then(() => {
-			return _console(true, "italic", [ "log", "italic" ]);
+			return _console("italic", [ "log", "italic" ]);
 		}).then(() => {
-			return _console(true, "strikethrough", [ "log", "strikethrough" ]);
+			return _console("strikethrough", [ "log", "strikethrough" ]);
 		}).then(() => {
-			return _console(true, "underline", [ "log", "underline" ]);
+			return _console("underline", [ "log", "underline" ]);
 		});
 
 	});
 
 	it("should check different types with background", () => {
 
-		return _console(true, "log", [ "log", "background" ]).then(() => {
-			return _console(true, "information", [ "information", "background" ]);
+		return _console("log", [ "log", "background" ]).then(() => {
+			return _console("information", [ "information", "background" ]);
 		}).then(() => {
-			return _console(true, "success", [ "success", "background" ]);
+			return _console("success", [ "success", "background" ]);
 		}).then(() => {
-			return _console(true, "warning", [ "warning", "background" ]);
+			return _console("warning", [ "warning", "background" ]);
 		}).then(() => {
-			return _console(true, "error", [ "error", "background" ]);
+			return _console("error", [ "error", "background" ]);
 		});
 
 	});
