@@ -28,6 +28,20 @@ describe("write", () => {
 		return logs.release();
 	});
 
+	it("should test unknown function", () => {
+
+		return logs.log("").then(() => {
+			return logs.log("log");
+		}).then(() => {
+			return logs.log("log", [ "background" ]);
+		}).then(() => {
+			return logs.log({ "test": "test" });
+		}).then(() => {
+			return logs.log([ "01", "02", "03" ]);
+		});
+
+	});
+
 	it("should test log function", () => {
 
 		return logs.log("").then(() => {
@@ -48,6 +62,10 @@ describe("write", () => {
 			return logs.information("information");
 		}).then(() => {
 			return logs.information("information", [ "background" ]);
+		}).then(() => {
+			return logs.information({ "test": "test" });
+		}).then(() => {
+			return logs.information([ "01", "02", "03" ]);
 		});
 
 	});
@@ -58,6 +76,10 @@ describe("write", () => {
 			return logs.success("success");
 		}).then(() => {
 			return logs.success("success", [ "background" ]);
+		}).then(() => {
+			return logs.success({ "test": "test" });
+		}).then(() => {
+			return logs.success([ "01", "02", "03" ]);
 		});
 
 	});
@@ -68,6 +90,10 @@ describe("write", () => {
 			return logs.warning("warning");
 		}).then(() => {
 			return logs.warning("warning", [ "background" ]);
+		}).then(() => {
+			return logs.warning({ "test": "test" });
+		}).then(() => {
+			return logs.warning([ "01", "02", "03" ]);
 		});
 
 	});
@@ -78,6 +104,10 @@ describe("write", () => {
 			return logs.error("error");
 		}).then(() => {
 			return logs.error("error", [ "background" ]);
+		}).then(() => {
+			return logs.error({ "test": "test" });
+		}).then(() => {
+			return logs.error([ "01", "02", "03" ]);
 		});
 
 	});
