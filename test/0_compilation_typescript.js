@@ -23,17 +23,13 @@ describe("compilation typescript", () => {
 
 	});
 
-	it("should compile typescript file", () => {
+	it("should compile typescript file", (done) => {
 
-		return new Promise((resolve, reject) => {
-
-			exec("tsc " + join(__dirname, "typescript", "compilation.ts"), {
-				"cwd": join(__dirname, ".."),
-				"windowsHide": true
-			}, (err) => {
-				return err ? reject(err) : resolve();
-			});
-
+		exec("npx tsc " + join(__dirname, "typescript", "compilation.ts"), {
+			"cwd": join(__dirname, ".."),
+			"windowsHide": true
+		}, (err) => {
+			return err ? done(err) : done();
 		});
 
 	}).timeout(MAX_TIMEOUT);
